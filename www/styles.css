@@ -1,0 +1,239 @@
+/* Scientific Methods Engine - Custom Styles */
+
+/* General styling */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Phase status indicators */
+#phase-status {
+  background-color: #f8f9fa;
+  border-radius: 5px;
+}
+
+#phase-status p {
+  margin: 5px 0;
+  padding: 5px;
+}
+
+.text-success {
+  color: #28a745 !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+/* Box styling */
+.box {
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.box-header {
+  font-weight: 600;
+}
+
+/* Alert styling */
+.alert {
+  border-radius: 4px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.alert-info {
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+  color: #0c5460;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+}
+
+.alert-warning {
+  background-color: #fff3cd;
+  border-color: #ffeeba;
+  color: #856404;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+/* Button styling */
+.btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  border-color: #ffc107;
+  color: #212529;
+}
+
+.btn-warning:hover {
+  background-color: #e0a800;
+  border-color: #d39e00;
+}
+
+.btn-info {
+  background-color: #17a2b8;
+  border-color: #17a2b8;
+  color: white;
+}
+
+.btn-info:hover {
+  background-color: #138496;
+  border-color: #117a8b;
+}
+
+/* Well panel styling */
+.well {
+  background-color: #f5f5f5;
+  border: 1px solid #e3e3e3;
+  border-radius: 4px;
+  padding: 19px;
+  margin-bottom: 20px;
+}
+
+/* Table styling */
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+.stats-table th,
+.stats-table td {
+  border: 1px solid #dee2e6;
+  padding: 12px;
+  text-align: left;
+}
+
+.stats-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.stats-table tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+/* Code blocks */
+pre {
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  overflow-x: auto;
+}
+
+/* Progress bar */
+.progress {
+  height: 20px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
+}
+
+.progress-bar {
+  float: left;
+  width: 0;
+  height: 100%;
+  font-size: 12px;
+  line-height: 20px;
+  color: #fff;
+  text-align: center;
+  background-color: #337ab7;
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
+  transition: width .6s ease;
+}
+
+/* Report styling */
+.report-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.summary-box {
+  background-color: #e8f4f8;
+  border-left: 4px solid #17a2b8;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+/* Validation messages */
+.validation-success {
+  color: #28a745;
+}
+
+.validation-warning {
+  color: #ffc107;
+}
+
+.validation-error {
+  color: #dc3545;
+}
+
+/* Modal styling */
+.modal-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.modal-footer {
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+}
+
+/* Sidebar menu active state */
+.sidebar-menu > li.active > a {
+  border-left-color: #17a2b8;
+}
+
+/* Custom icon colors */
+.fa-lightbulb {
+  color: #ffc107;
+}
+
+.fa-tasks {
+  color: #fd7e14;
+}
+
+.fa-code {
+  color: #17a2b8;
+}
+
+.fa-chart-line {
+  color: #28a745;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .box {
+    margin-bottom: 20px;
+  }
+  
+  .stats-table {
+    font-size: 14px;
+  }
+  
+  .stats-table th,
+  .stats-table td {
+    padding: 8px;
+  }
+}
