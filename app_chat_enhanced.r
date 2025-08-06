@@ -8,6 +8,12 @@ library(tidyverse)
 library(jsonlite)
 library(knitr)
 library(rmarkdown)
+library(httr)
+
+# Source enhanced functionality
+source("R/perplexity_integration.R")
+source("R/enhanced_chat_functions.R") 
+source("R/phase_specific_searches.R")
 
 # Define chat UI component
 chatUI <- function(id) {
@@ -48,11 +54,15 @@ ui <- dashboardPage(
     sidebarMenu(
       id = "phases",
       conditionalPanel(
-        condition = "output.api_key_required",
-        menuItem("API Key Setup", tabName = "api_setup", icon = icon("key"))
+        condition = "output.anthropic_key_required",
+        menuItem("Anthropic API Setup", tabName = "anthropic_setup", icon = icon("key"))
       ),
       conditionalPanel(
-        condition = "!output.api_key_required",
+        condition = "output.perplexity_key_required && !output.anthropic_key_required",
+        menuItem("Perplexity API Setup", tabName = "perplexity_setup", icon = icon("search"))
+      ),
+      conditionalPanel(
+        condition = "!output.anthropic_key_required && !output.perplexity_key_required",
         menuItem("Phase 1: Hypothesis", tabName = "hypothesis", icon = icon("lightbulb")),
         menuItem("Phase 2: Planning", tabName = "planning", icon = icon("tasks")),
         menuItem("Phase 3: Implementation", tabName = "implementation", icon = icon("code")),
@@ -73,14 +83,32 @@ ui <- dashboardPage(
       style = "padding: 10px;",
       h5("AI Assistant Status"),
       conditionalPanel(
-        condition = "output.api_key_required",
-        tags$p(icon("circle", style = "color: #dc3545;"), " API Key Required",
-               style = "color: #dc3545; margin: 0;")
+        condition = "output.anthropic_key_required",
+        tags$p(icon("circle", style = "color: #dc3545;"), " Anthropic Key Required",
+               style = "color: #dc3545; margin: 0; font-size: 0.9em;")
       ),
       conditionalPanel(
-        condition = "!output.api_key_required",
-        tags$p(icon("circle", style = "color: #28a745;"), " Anthropic Ready",
-               style = "color: #28a745; margin: 0;")
+        condition = "output.perplexity_key_required && !output.anthropic_key_required",
+        tags$p(icon("circle", style = "color: #ffc107;"), " Perplexity Key Required",
+               style = "color: #856404; margin: 0; font-size: 0.9em;")
+      ),
+      conditionalPanel(
+        condition = "!output.anthropic_key_required && !output.perplexity_key_required",
+        tags$div(
+          tags$p(icon("check-circle", style = "color: #28a745;"), " Anthropic Ready",
+                 style = "color: #28a745; margin: 0; font-size: 0.9em;"),
+          tags$p(icon("check-circle", style = "color: #28a745;"), " Literature Enhanced",
+                 style = "color: #28a745; margin: 0; font-size: 0.9em;")
+        )
+      ),
+      conditionalPanel(
+        condition = "!output.anthropic_key_required && output.perplexity_key_required",
+        tags$div(
+          tags$p(icon("check-circle", style = "color: #28a745;"), " Anthropic Ready",
+                 style = "color: #28a745; margin: 0; font-size: 0.9em;"),
+          tags$p(icon("exclamation-triangle", style = "color: #ffc107;"), " Basic Mode Only",
+                 style = "color: #856404; margin: 0; font-size: 0.9em;")
+        )
       )
     )
   ),
@@ -118,9 +146,9 @@ ui <- dashboardPage(
     ),
     
     tabItems(
-      # API Key Setup (shown when no API key found)
+      # Anthropic API Key Setup (shown when no Anthropic API key found)
       tabItem(
-        tabName = "api_setup",
+        tabName = "anthropic_setup",
         fluidRow(
           column(8, offset = 2,
             box(
@@ -179,6 +207,113 @@ ui <- dashboardPage(
         )
       ),
       
+      # Perplexity API Key Setup (shown when Anthropic is available but Perplexity is missing)
+      tabItem(
+        tabName = "perplexity_setup",
+        fluidRow(
+          column(8, offset = 2,
+            box(
+              title = "Perplexity API Key Setup Required for Literature Integration",
+              width = 12,
+              status = "warning",
+              solidHeader = TRUE,
+              
+              div(
+                style = "text-align: center; margin-bottom: 20px;",
+                icon("search", style = "font-size: 48px; color: #ffc107; margin-bottom: 10px;"),
+                h3("Literature Integration Available", style = "color: #856404;"),
+                p("Anthropic API is configured, but Perplexity API is needed for literature-enhanced responses.", 
+                  style = "font-size: 16px; margin-bottom: 15px;"),
+                p("Without Perplexity, you'll have basic AI collaboration. With it, every response will be grounded in current research literature.",
+                  style = "font-size: 14px; color: #666; margin-bottom: 20px;"),
+                div(
+                  style = "background-color: #fff3cd; padding: 15px; border-radius: 5px; margin-bottom: 15px; border-left: 4px solid #ffc107;",
+                  tags$strong("Benefits of Literature Integration:"),
+                  tags$ul(
+                    style = "text-align: left; margin-top: 10px;",
+                    tags$li("AI responses include specific citations from recent studies"),
+                    tags$li("Effect sizes and findings from meta-analyses"),
+                    tags$li("Methodological guidance based on published research"),
+                    tags$li("Evidence-based challenge to research assumptions")
+                  )
+                )
+              ),
+              
+              h4("Setup Options:"),
+              
+              tabsetPanel(
+                tabPanel("Option 1: Add to CSV",
+                  div(style = "margin-top: 15px;",
+                    p("Add your Perplexity API key to the same CSV file used for Anthropic:"),
+                    tags$ol(
+                      tags$li("Open your CSV file containing the Anthropic API key"),
+                      tags$li("Add a new column named 'PERPLEXITY_API_KEY'"),
+                      tags$li("Enter your Perplexity API key in this column"),
+                      tags$li("Re-upload the CSV file below")
+                    ),
+                    
+                    fileInput("perplexity_csv_file", 
+                              "Choose Updated CSV File",
+                              accept = c(".csv", ".txt"),
+                              width = "100%"),
+                    
+                    conditionalPanel(
+                      condition = "output.perplexity_csv_uploaded",
+                      div(
+                        style = "margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 8px;",
+                        h5("Variables found in CSV:"),
+                        verbatimTextOutput("perplexity_csv_variables"),
+                        
+                        h5("Step 2: Select the variable containing your Perplexity API key:"),
+                        selectInput("perplexity_key_variable",
+                                    "Choose variable:",
+                                    choices = NULL,
+                                    width = "100%"),
+                        
+                        conditionalPanel(
+                          condition = "input.perplexity_key_variable != ''",
+                          div(
+                            style = "margin-top: 15px;",
+                            h6("Preview of selected variable (first few characters):"),
+                            verbatimTextOutput("perplexity_key_preview"),
+                            
+                            actionButton("confirm_perplexity_key", 
+                                         "Set Perplexity Key & Enable Literature Integration",
+                                         class = "btn-success btn-lg",
+                                         style = "margin-top: 15px; width: 100%;",
+                                         icon = icon("check"))
+                          )
+                        )
+                      )
+                    )
+                  )
+                ),
+                
+                tabPanel("Option 2: Skip for Now",
+                  div(style = "margin-top: 15px;",
+                    div(
+                      style = "background-color: #d1ecf1; padding: 15px; border-radius: 5px; border-left: 4px solid #bee5eb;",
+                      tags$strong("Continue with Basic Mode"),
+                      p("You can proceed without Perplexity API key, but responses will be based on AI training knowledge only (no current literature integration).", 
+                        style = "margin-top: 10px; margin-bottom: 0;")
+                    ),
+                    
+                    actionButton("skip_perplexity", 
+                                 "Continue with Basic AI Collaboration",
+                                 class = "btn-info btn-lg",
+                                 style = "margin-top: 20px; width: 100%;",
+                                 icon = icon("arrow-right")),
+                    
+                    p("You can add the Perplexity API key later by restarting the application with the PERPLEXITY_API_KEY environment variable.",
+                      style = "margin-top: 15px; font-size: 0.9em; color: #666; text-align: center;")
+                  )
+                )
+              )
+            )
+          )
+        )
+      ),
+      
       # Phase 1: Hypothesis Formulation with Chat
       tabItem(
         tabName = "hypothesis",
@@ -229,20 +364,36 @@ ui <- dashboardPage(
           
           column(6,
             box(
-              title = "Collaborative Hypothesis Refinement with Anthropic",
+              title = uiOutput("hypothesis_collaboration_title"),
               width = 12,
               status = "info",
               solidHeader = TRUE,
               
-              p("Discuss your hypothesis with Anthropic. As your thought partner, Anthropic will:",
-              tags$ul(
-                tags$li("Ask clarifying questions about your research goals"),
-                tags$li("Challenge assumptions constructively"),
-                tags$li("Suggest improvements to make your hypothesis more testable"),
-                tags$li("Help identify potential confounders and limitations")
-              )),
+              uiOutput("hypothesis_collaboration_description"),
               
               chatUI("hypothesis_chat"),
+              
+              # Evidence Base Panel
+              tags$div(
+                style = "margin-top: 15px;",
+                tags$button(
+                  "Evidence Base", 
+                  type = "button", 
+                  class = "btn btn-outline-info btn-sm", 
+                  `data-toggle` = "collapse", 
+                  `data-target` = "#evidence-panel-hypothesis",
+                  tags$i(class = "fa fa-book", style = "margin-right: 5px;")
+                ),
+                tags$div(
+                  id = "evidence-panel-hypothesis",
+                  class = "collapse",
+                  style = "margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 5px; border-left: 3px solid #17a2b8;",
+                  tags$h6("Literature Searches Performed:", style = "color: #17a2b8; font-weight: bold;"),
+                  uiOutput("hypothesis_literature_summary"),
+                  tags$h6("Key Citations:", style = "color: #17a2b8; font-weight: bold; margin-top: 10px;"),
+                  uiOutput("hypothesis_citations")
+                )
+              ),
               
               tags$hr(),
               
@@ -304,21 +455,36 @@ ui <- dashboardPage(
           
           column(6,
             box(
-              title = "Analytic Planning Discussion with Anthropic",
+              title = uiOutput("planning_collaboration_title"),
               width = 12,
               status = "warning",
               solidHeader = TRUE,
               
-              p("Collaborate with Anthropic to develop your analytic plan. Topics include:",
-              tags$ul(
-                tags$li("Appropriateness of selected statistical test"),
-                tags$li("Power analysis interpretation and implications"),
-                tags$li("Literature benchmarks and expected effect sizes"),
-                tags$li("Potential sensitivity analyses"),
-                tags$li("Causal identification strategies (if applicable)")
-              )),
+              uiOutput("planning_collaboration_description"),
               
               chatUI("planning_chat"),
+              
+              # Evidence Base Panel for Planning
+              tags$div(
+                style = "margin-top: 15px;",
+                tags$button(
+                  "Evidence Base", 
+                  type = "button", 
+                  class = "btn btn-outline-warning btn-sm", 
+                  `data-toggle` = "collapse", 
+                  `data-target` = "#evidence-panel-planning",
+                  tags$i(class = "fa fa-book", style = "margin-right: 5px;")
+                ),
+                tags$div(
+                  id = "evidence-panel-planning",
+                  class = "collapse",
+                  style = "margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 5px; border-left: 3px solid #ffc107;",
+                  tags$h6("Literature Searches Performed:", style = "color: #856404; font-weight: bold;"),
+                  uiOutput("planning_literature_summary"),
+                  tags$h6("Key Citations:", style = "color: #856404; font-weight: bold; margin-top: 10px;"),
+                  uiOutput("planning_citations")
+                )
+              ),
               
               tags$hr(),
               
@@ -371,21 +537,36 @@ ui <- dashboardPage(
           
           column(6,
             box(
-              title = "Implementation Support with Anthropic",
+              title = uiOutput("implementation_collaboration_title"),
               width = 12,
               status = "info",
               solidHeader = TRUE,
               
-              p("Get help from Anthropic during implementation:",
-              tags$ul(
-                tags$li("Understanding the generated code"),
-                tags$li("Troubleshooting errors"),
-                tags$li("Interpreting preliminary results"),
-                tags$li("Discussing unexpected findings"),
-                tags$li("Planning additional analyses")
-              )),
+              uiOutput("implementation_collaboration_description"),
               
               chatUI("implementation_chat"),
+              
+              # Evidence Base Panel for Implementation
+              tags$div(
+                style = "margin-top: 15px;",
+                tags$button(
+                  "Evidence Base", 
+                  type = "button", 
+                  class = "btn btn-outline-info btn-sm", 
+                  `data-toggle` = "collapse", 
+                  `data-target` = "#evidence-panel-implementation",
+                  tags$i(class = "fa fa-book", style = "margin-right: 5px;")
+                ),
+                tags$div(
+                  id = "evidence-panel-implementation",
+                  class = "collapse",
+                  style = "margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 5px; border-left: 3px solid #17a2b8;",
+                  tags$h6("Literature Searches Performed:", style = "color: #17a2b8; font-weight: bold;"),
+                  uiOutput("implementation_literature_summary"),
+                  tags$h6("Key Citations:", style = "color: #17a2b8; font-weight: bold; margin-top: 10px;"),
+                  uiOutput("implementation_citations")
+                )
+              ),
               
               tags$hr(),
               
@@ -422,21 +603,36 @@ ui <- dashboardPage(
           
           column(4,
             box(
-              title = "Final Discussion with Anthropic",
+              title = uiOutput("analysis_collaboration_title"),
               width = 12,
               status = "success",
               solidHeader = TRUE,
               
-              p("Discuss your findings with Anthropic:",
-              tags$ul(
-                tags$li("Interpretation of results"),
-                tags$li("Clinical/practical significance"),
-                tags$li("Study limitations"),
-                tags$li("Future research directions"),
-                tags$li("Alternative explanations")
-              )),
+              uiOutput("analysis_collaboration_description"),
               
               chatUI("analysis_chat"),
+              
+              # Evidence Base Panel for Analysis
+              tags$div(
+                style = "margin-top: 15px;",
+                tags$button(
+                  "Evidence Base", 
+                  type = "button", 
+                  class = "btn btn-outline-success btn-sm", 
+                  `data-toggle` = "collapse", 
+                  `data-target` = "#evidence-panel-analysis",
+                  tags$i(class = "fa fa-book", style = "margin-right: 5px;")
+                ),
+                tags$div(
+                  id = "evidence-panel-analysis",
+                  class = "collapse",
+                  style = "margin-top: 10px; padding: 10px; background-color: #f8f9fa; border-radius: 5px; border-left: 3px solid #28a745;",
+                  tags$h6("Literature Searches Performed:", style = "color: #155724; font-weight: bold;"),
+                  uiOutput("analysis_literature_summary"),
+                  tags$h6("Key Citations:", style = "color: #155724; font-weight: bold; margin-top: 10px;"),
+                  uiOutput("analysis_citations")
+                )
+              ),
               
               tags$div(
                 class = "alert alert-success",
@@ -470,6 +666,12 @@ server <- function(input, output, session) {
       implementation = list(),
       analysis = list()
     ),
+    literature_results = list(
+      hypothesis = list(),
+      planning = list(),
+      implementation = list(),
+      analysis = list()
+    ),
     refined_hypothesis = "",
     benchmarks = data.frame(
       Study = character(),
@@ -481,27 +683,43 @@ server <- function(input, output, session) {
     ),
     api_key_found = FALSE,
     csv_data = NULL,
-    api_key_set = FALSE
+    perplexity_csv_data = NULL,
+    api_key_set = FALSE,
+    perplexity_key_set = FALSE,
+    perplexity_enabled = FALSE,
+    skip_perplexity = FALSE
   )
   
-  # Check for Anthropic API key on startup
-  api_key_available <- reactive({
-    # Check environment variables for common Anthropic API key names
+  # Check for Anthropic API key availability
+  anthropic_key_available <- reactive({
     env_vars <- c("ANTHROPIC_API_KEY", "CLAUDE_API_KEY", "ANTHROPIC_KEY")
     api_found <- any(sapply(env_vars, function(x) nchar(Sys.getenv(x)) > 0))
     return(api_found || values$api_key_set)
   })
   
-  # Control which tab is shown based on API key availability
-  output$api_key_required <- reactive({
-    !api_key_available()
+  # Check for Perplexity API key availability
+  perplexity_key_available <- reactive({
+    perplexity_found <- nchar(Sys.getenv("PERPLEXITY_API_KEY")) > 0
+    return(perplexity_found || values$perplexity_key_set)
   })
-  outputOptions(output, "api_key_required", suspendWhenHidden = FALSE)
+  
+  # Control which tab is shown based on API key availability
+  output$anthropic_key_required <- reactive({
+    !anthropic_key_available()
+  })
+  outputOptions(output, "anthropic_key_required", suspendWhenHidden = FALSE)
+  
+  output$perplexity_key_required <- reactive({
+    !perplexity_key_available() && !values$skip_perplexity
+  })
+  outputOptions(output, "perplexity_key_required", suspendWhenHidden = FALSE)
   
   # Redirect to appropriate tab on startup
   observe({
-    if (!api_key_available()) {
-      updateTabItems(session, "phases", "api_setup")
+    if (!anthropic_key_available()) {
+      updateTabItems(session, "phases", "anthropic_setup")
+    } else if (!perplexity_key_available() && !values$skip_perplexity) {
+      updateTabItems(session, "phases", "perplexity_setup")
     } else {
       updateTabItems(session, "phases", "hypothesis")
     }
@@ -577,15 +795,107 @@ server <- function(input, output, session) {
         Sys.setenv("ANTHROPIC_API_KEY" = api_key)
         values$api_key_set <- TRUE
         
-        showNotification("API Key set successfully! Redirecting to Phase 1...", type = "message")
+        showNotification("Anthropic API Key set successfully!", type = "success")
         
-        # Redirect to hypothesis tab
-        updateTabItems(session, "phases", "hypothesis")
+        # Redirect to appropriate next step
+        if (!perplexity_key_available() && !values$skip_perplexity) {
+          updateTabItems(session, "phases", "perplexity_setup")
+        } else {
+          updateTabItems(session, "phases", "hypothesis")
+        }
         
       } else {
         showNotification("Invalid API key. Please check the selected variable.", type = "error")
       }
     }
+  })
+  
+  # Handle CSV file upload for Perplexity API key
+  observeEvent(input$perplexity_csv_file, {
+    req(input$perplexity_csv_file)
+    
+    tryCatch({
+      # Read the CSV file
+      csv_path <- input$perplexity_csv_file$datapath
+      csv_data <- read.csv(csv_path, stringsAsFactors = FALSE)
+      values$perplexity_csv_data <- csv_data
+      
+      # Update variable choices
+      var_names <- names(csv_data)
+      updateSelectInput(session, "perplexity_key_variable",
+                        choices = c("Select variable..." = "", setNames(var_names, var_names)))
+      
+    }, error = function(e) {
+      showNotification(paste("Error reading CSV file:", e$message), type = "error")
+    })
+  })
+  
+  # Show Perplexity CSV variables
+  output$perplexity_csv_variables <- renderText({
+    req(values$perplexity_csv_data)
+    var_info <- sapply(names(values$perplexity_csv_data), function(var) {
+      paste0(var, " (", class(values$perplexity_csv_data[[var]])[1], ", ", nrow(values$perplexity_csv_data), " rows)")
+    })
+    paste(var_info, collapse = "\n")
+  })
+  
+  # Control Perplexity CSV uploaded conditional panel
+  output$perplexity_csv_uploaded <- reactive({
+    !is.null(values$perplexity_csv_data)
+  })
+  outputOptions(output, "perplexity_csv_uploaded", suspendWhenHidden = FALSE)
+  
+  # Show Perplexity API key preview
+  output$perplexity_key_preview <- renderText({
+    req(input$perplexity_key_variable, values$perplexity_csv_data)
+    
+    if (input$perplexity_key_variable != "" && input$perplexity_key_variable %in% names(values$perplexity_csv_data)) {
+      api_values <- values$perplexity_csv_data[[input$perplexity_key_variable]]
+      # Show first non-empty value, truncated to first 20 characters
+      first_val <- api_values[nchar(trimws(api_values)) > 0][1]
+      if (!is.na(first_val)) {
+        preview <- substr(trimws(first_val), 1, 20)
+        if (nchar(trimws(first_val)) > 20) {
+          paste0(preview, "...")
+        } else {
+          preview
+        }
+      } else {
+        "No valid API key found in this variable"
+      }
+    }
+  })
+  
+  # Confirm and set Perplexity API key
+  observeEvent(input$confirm_perplexity_key, {
+    req(input$perplexity_key_variable, values$perplexity_csv_data)
+    
+    if (input$perplexity_key_variable != "" && input$perplexity_key_variable %in% names(values$perplexity_csv_data)) {
+      api_values <- values$perplexity_csv_data[[input$perplexity_key_variable]]
+      # Get first non-empty value
+      api_key <- trimws(api_values[nchar(trimws(api_values)) > 0][1])
+      
+      if (!is.na(api_key) && nchar(api_key) > 10) {  # Basic validation
+        # Set the API key in environment
+        Sys.setenv("PERPLEXITY_API_KEY" = api_key)
+        values$perplexity_key_set <- TRUE
+        
+        showNotification("Perplexity API Key set successfully! Literature integration enabled.", type = "success")
+        
+        # Redirect to hypothesis phase
+        updateTabItems(session, "phases", "hypothesis")
+        
+      } else {
+        showNotification("Invalid Perplexity API key. Please check the selected variable.", type = "error")
+      }
+    }
+  })
+  
+  # Skip Perplexity setup
+  observeEvent(input$skip_perplexity, {
+    values$skip_perplexity <- TRUE
+    showNotification("Proceeding with basic AI collaboration (no literature integration).", type = "message")
+    updateTabItems(session, "phases", "hypothesis")
   })
   
   # Progress indicators
@@ -604,6 +914,160 @@ server <- function(input, output, session) {
              " Analysis",
              class = if(!is.null(values$final_report)) "text-success" else "text-muted")
     )
+  })
+  
+  # Dynamic collaboration titles and descriptions based on literature integration status
+  output$hypothesis_collaboration_title <- renderUI({
+    if (values$perplexity_enabled) {
+      h4("Evidence-Based Collaborative Refinement with Anthropic", style = "margin: 0;")
+    } else {
+      h4("Collaborative Hypothesis Refinement with Anthropic", style = "margin: 0;")
+    }
+  })
+  
+  output$hypothesis_collaboration_description <- renderUI({
+    if (values$perplexity_enabled) {
+      p("Discuss your hypothesis with Anthropic, now enhanced with current literature. Your AI collaborator will:",
+        tags$ul(
+          tags$li("Challenge assumptions with specific citations from recent studies"),
+          tags$li("Provide effect sizes from meta-analyses and systematic reviews"),
+          tags$li("Suggest methodological improvements based on published research"),
+          tags$li("Identify gaps in current knowledge and contradictory findings")
+        )
+      )
+    } else {
+      div(
+        div(
+          style = "background-color: #fff3cd; padding: 10px; border-radius: 5px; border-left: 3px solid #ffc107; margin-bottom: 15px;",
+          tags$strong("Basic Mode Active"), 
+          p("Literature integration is not available. Responses are based on AI training knowledge only.", 
+            style = "margin: 5px 0 0 0; font-size: 0.9em;")
+        ),
+        p("Discuss your hypothesis with Anthropic. As your thought partner, Anthropic will:",
+          tags$ul(
+            tags$li("Ask clarifying questions about your research goals"),
+            tags$li("Challenge assumptions constructively"),
+            tags$li("Suggest improvements to make your hypothesis more testable"),
+            tags$li("Help identify potential confounders and limitations")
+          )
+        )
+      )
+    }
+  })
+  
+  output$planning_collaboration_title <- renderUI({
+    if (values$perplexity_enabled) {
+      h4("Literature-Enhanced Analytic Planning with Anthropic", style = "margin: 0;")
+    } else {
+      h4("Analytic Planning Discussion with Anthropic", style = "margin: 0;")
+    }
+  })
+  
+  output$planning_collaboration_description <- renderUI({
+    if (values$perplexity_enabled) {
+      p("Collaborate with Anthropic to develop your analytic plan, grounded in current literature:",
+        tags$ul(
+          tags$li("Literature-benchmarked effect sizes and power analysis"),
+          tags$li("Evidence-based statistical test selection and validation"),
+          tags$li("Methodological recommendations from recent studies"),
+          tags$li("Sensitivity analyses based on published best practices")
+        )
+      )
+    } else {
+      div(
+        div(
+          style = "background-color: #fff3cd; padding: 10px; border-radius: 5px; border-left: 3px solid #ffc107; margin-bottom: 15px;",
+          tags$strong("Basic Mode Active"), 
+          p("Literature integration unavailable. Using general methodological knowledge.", 
+            style = "margin: 5px 0 0 0; font-size: 0.9em;")
+        ),
+        p("Collaborate with Anthropic to develop your analytic plan:",
+          tags$ul(
+            tags$li("Appropriateness of selected statistical test"),
+            tags$li("Power analysis interpretation and implications"),
+            tags$li("General effect size considerations"),
+            tags$li("Potential sensitivity analyses")
+          )
+        )
+      )
+    }
+  })
+  
+  output$implementation_collaboration_title <- renderUI({
+    if (values$perplexity_enabled) {
+      h4("Research-Informed Implementation Support", style = "margin: 0;")
+    } else {
+      h4("Implementation Support with Anthropic", style = "margin: 0;")
+    }
+  })
+  
+  output$implementation_collaboration_description <- renderUI({
+    if (values$perplexity_enabled) {
+      p("Get research-informed help during implementation:",
+        tags$ul(
+          tags$li("Best practices from methodological literature"),
+          tags$li("Evidence-based diagnostic and troubleshooting guidance"),
+          tags$li("Literature-contextualized result interpretation"),
+          tags$li("Research-grounded discussion of unexpected findings")
+        )
+      )
+    } else {
+      div(
+        div(
+          style = "background-color: #fff3cd; padding: 10px; border-radius: 5px; border-left: 3px solid #ffc107; margin-bottom: 15px;",
+          tags$strong("Basic Mode Active"), 
+          p("General implementation support without literature integration.", 
+            style = "margin: 5px 0 0 0; font-size: 0.9em;")
+        ),
+        p("Get help from Anthropic during implementation:",
+          tags$ul(
+            tags$li("Understanding the generated code"),
+            tags$li("Troubleshooting errors"),
+            tags$li("Interpreting preliminary results"),
+            tags$li("Discussing unexpected findings")
+          )
+        )
+      )
+    }
+  })
+  
+  output$analysis_collaboration_title <- renderUI({
+    if (values$perplexity_enabled) {
+      h4("Evidence-Based Results Discussion", style = "margin: 0;")
+    } else {
+      h4("Final Discussion with Anthropic", style = "margin: 0;")
+    }
+  })
+  
+  output$analysis_collaboration_description <- renderUI({
+    if (values$perplexity_enabled) {
+      p("Discuss your findings with literature-enhanced Anthropic:",
+        tags$ul(
+          tags$li("Results interpretation grounded in recent studies"),
+          tags$li("Literature-benchmarked clinical/practical significance"),
+          tags$li("Evidence-based discussion of limitations"),
+          tags$li("Research-informed future directions"),
+          tags$li("Alternative explanations from published research")
+        )
+      )
+    } else {
+      div(
+        div(
+          style = "background-color: #fff3cd; padding: 10px; border-radius: 5px; border-left: 3px solid #ffc107; margin-bottom: 15px;",
+          tags$strong("Basic Mode Active"), 
+          p("General interpretation guidance without literature context.", 
+            style = "margin: 5px 0 0 0; font-size: 0.9em;")
+        ),
+        p("Discuss your findings with Anthropic:",
+          tags$ul(
+            tags$li("Interpretation of results"),
+            tags$li("Clinical/practical significance"),
+            tags$li("Study limitations"),
+            tags$li("Future research directions")
+          )
+        )
+      )
+    }
   })
   
   # Chat server module
@@ -662,6 +1126,206 @@ server <- function(input, output, session) {
   chatServer("planning_chat", "planning")
   chatServer("implementation_chat", "implementation")
   chatServer("analysis_chat", "analysis")
+  
+  # Check for Perplexity API integration
+  observe({
+    perplexity_key <- perplexity_key_available()
+    anthropic_key <- anthropic_key_available()
+    values$perplexity_enabled <- perplexity_key && anthropic_key && !values$skip_perplexity
+  })
+  
+  # Evidence Base UI outputs for each phase
+  # Hypothesis phase literature
+  output$hypothesis_literature_summary <- renderUI({
+    lit_results <- values$literature_results$hypothesis
+    if (length(lit_results) == 0) {
+      return(tags$p("No literature searches performed yet.", style = "font-style: italic; color: #666;"))
+    }
+    
+    searches <- lapply(seq_along(lit_results), function(i) {
+      result <- lit_results[[i]]
+      status_icon <- if (result$success %||% FALSE) "✓" else "✗"
+      status_color <- if (result$success %||% FALSE) "#28a745" else "#dc3545"
+      
+      tags$div(
+        style = "margin-bottom: 8px;",
+        tags$span(status_icon, style = paste("color:", status_color, "; font-weight: bold; margin-right: 5px;")),
+        tags$code(result$query %||% "Unknown query", style = "font-size: 0.85em;")
+      )
+    })
+    
+    return(tags$div(searches))
+  })
+  
+  output$hypothesis_citations <- renderUI({
+    lit_results <- values$literature_results$hypothesis
+    if (length(lit_results) == 0) {
+      return(tags$p("No citations available.", style = "font-style: italic; color: #666;"))
+    }
+    
+    all_citations <- c()
+    for (result in lit_results) {
+      if (result$success %||% FALSE) {
+        citations <- result$citations %||% c()
+        all_citations <- c(all_citations, citations)
+      }
+    }
+    
+    if (length(all_citations) == 0) {
+      return(tags$p("No citations extracted from searches.", style = "font-style: italic; color: #666;"))
+    }
+    
+    unique_citations <- unique(all_citations)
+    citation_list <- lapply(unique_citations, function(citation) {
+      tags$li(citation, style = "font-size: 0.9em; margin-bottom: 3px;")
+    })
+    
+    return(tags$ol(citation_list, style = "padding-left: 20px;"))
+  })
+  
+  # Planning phase literature
+  output$planning_literature_summary <- renderUI({
+    lit_results <- values$literature_results$planning
+    if (length(lit_results) == 0) {
+      return(tags$p("No literature searches performed yet.", style = "font-style: italic; color: #666;"))
+    }
+    
+    searches <- lapply(seq_along(lit_results), function(i) {
+      result <- lit_results[[i]]
+      status_icon <- if (result$success %||% FALSE) "✓" else "✗"
+      status_color <- if (result$success %||% FALSE) "#28a745" else "#dc3545"
+      
+      tags$div(
+        style = "margin-bottom: 8px;",
+        tags$span(status_icon, style = paste("color:", status_color, "; font-weight: bold; margin-right: 5px;")),
+        tags$code(result$query %||% "Unknown query", style = "font-size: 0.85em;")
+      )
+    })
+    
+    return(tags$div(searches))
+  })
+  
+  output$planning_citations <- renderUI({
+    lit_results <- values$literature_results$planning
+    if (length(lit_results) == 0) {
+      return(tags$p("No citations available.", style = "font-style: italic; color: #666;"))
+    }
+    
+    all_citations <- c()
+    for (result in lit_results) {
+      if (result$success %||% FALSE) {
+        citations <- result$citations %||% c()
+        all_citations <- c(all_citations, citations)
+      }
+    }
+    
+    if (length(all_citations) == 0) {
+      return(tags$p("No citations extracted from searches.", style = "font-style: italic; color: #666;"))
+    }
+    
+    unique_citations <- unique(all_citations)
+    citation_list <- lapply(unique_citations, function(citation) {
+      tags$li(citation, style = "font-size: 0.9em; margin-bottom: 3px;")
+    })
+    
+    return(tags$ol(citation_list, style = "padding-left: 20px;"))
+  })
+  
+  # Implementation phase literature  
+  output$implementation_literature_summary <- renderUI({
+    lit_results <- values$literature_results$implementation
+    if (length(lit_results) == 0) {
+      return(tags$p("No literature searches performed yet.", style = "font-style: italic; color: #666;"))
+    }
+    
+    searches <- lapply(seq_along(lit_results), function(i) {
+      result <- lit_results[[i]]
+      status_icon <- if (result$success %||% FALSE) "✓" else "✗"
+      status_color <- if (result$success %||% FALSE) "#28a745" else "#dc3545"
+      
+      tags$div(
+        style = "margin-bottom: 8px;",
+        tags$span(status_icon, style = paste("color:", status_color, "; font-weight: bold; margin-right: 5px;")),
+        tags$code(result$query %||% "Unknown query", style = "font-size: 0.85em;")
+      )
+    })
+    
+    return(tags$div(searches))
+  })
+  
+  output$implementation_citations <- renderUI({
+    lit_results <- values$literature_results$implementation
+    if (length(lit_results) == 0) {
+      return(tags$p("No citations available.", style = "font-style: italic; color: #666;"))
+    }
+    
+    all_citations <- c()
+    for (result in lit_results) {
+      if (result$success %||% FALSE) {
+        citations <- result$citations %||% c()
+        all_citations <- c(all_citations, citations)
+      }
+    }
+    
+    if (length(all_citations) == 0) {
+      return(tags$p("No citations extracted from searches.", style = "font-style: italic; color: #666;"))
+    }
+    
+    unique_citations <- unique(all_citations)
+    citation_list <- lapply(unique_citations, function(citation) {
+      tags$li(citation, style = "font-size: 0.9em; margin-bottom: 3px;")
+    })
+    
+    return(tags$ol(citation_list, style = "padding-left: 20px;"))
+  })
+  
+  # Analysis phase literature
+  output$analysis_literature_summary <- renderUI({
+    lit_results <- values$literature_results$analysis
+    if (length(lit_results) == 0) {
+      return(tags$p("No literature searches performed yet.", style = "font-style: italic; color: #666;"))
+    }
+    
+    searches <- lapply(seq_along(lit_results), function(i) {
+      result <- lit_results[[i]]
+      status_icon <- if (result$success %||% FALSE) "✓" else "✗"
+      status_color <- if (result$success %||% FALSE) "#28a745" else "#dc3545"
+      
+      tags$div(
+        style = "margin-bottom: 8px;",
+        tags$span(status_icon, style = paste("color:", status_color, "; font-weight: bold; margin-right: 5px;")),
+        tags$code(result$query %||% "Unknown query", style = "font-size: 0.85em;")
+      )
+    })
+    
+    return(tags$div(searches))
+  })
+  
+  output$analysis_citations <- renderUI({
+    lit_results <- values$literature_results$analysis
+    if (length(lit_results) == 0) {
+      return(tags$p("No citations available.", style = "font-style: italic; color: #666;"))
+    }
+    
+    all_citations <- c()
+    for (result in lit_results) {
+      if (result$success %||% FALSE) {
+        citations <- result$citations %||% c()
+        all_citations <- c(all_citations, citations)
+      }
+    }
+    
+    if (length(all_citations) == 0) {
+      return(tags$p("No citations extracted from searches.", style = "font-style: italic; color: #666;"))
+    }
+    
+    unique_citations <- unique(all_citations)
+    citation_list <- lapply(unique_citations, function(citation) {
+      tags$li(citation, style = "font-size: 0.9em; margin-bottom: 3px;")
+    })
+    
+    return(tags$ol(citation_list, style = "padding-left: 20px;"))
+  })
   
   # Source phase-specific logic
   source("R/phase1_hypothesis_chat.R", local = TRUE)

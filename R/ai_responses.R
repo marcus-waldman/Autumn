@@ -1,12 +1,21 @@
 # AI Response Generation for Scientific Methods Engine
 # This module generates context-aware responses from Anthropic as a thought partner
+# Enhanced with literature integration capabilities
+
+# Load enhanced chat functions
+source("R/enhanced_chat_functions.R")
 
 generate_ai_response <- function(phase, user_input, values) {
   
   # Get context-specific information
   context <- get_phase_context(phase, values)
   
-  # Generate response based on phase
+  # Check if enhanced literature integration should be used
+  if (literature_integration_enabled()) {
+    return(generate_enhanced_response(phase, user_input, values, use_literature = TRUE))
+  }
+  
+  # Generate response based on phase (fallback when literature not available)
   response <- switch(phase,
     "hypothesis" = generate_hypothesis_response(user_input, context, values),
     "planning" = generate_planning_response(user_input, context, values),
@@ -48,10 +57,29 @@ get_phase_context <- function(phase, values) {
 generate_hypothesis_response <- function(user_input, context, values) {
   input_lower <- tolower(user_input)
   
+  # Enhanced prompt with literature awareness
+  literature_prompt <- paste0(
+    "You are a skeptical scientific collaborator with access to current research literature. ",
+    "For every scientific claim or methodological decision, you should challenge assumptions with specific citations, ",
+    "suggest alternatives based on published research, and never accept claims without empirical support.\n\n",
+    "When discussing hypotheses, always consider:\n",
+    "- What does current literature say about this relationship?\n",
+    "- What effect sizes have similar studies reported?\n",
+    "- Are there contradictory findings that need to be addressed?\n",
+    "- What methodological approaches have been most successful?\n\n"
+  )
+  
   # Initial hypothesis discussion
   if (grepl("hypothesis|idea|research|study|test", input_lower) && 
       !context$has_data) {
-    return("I see you're thinking about your hypothesis. Before we dive deep, have you uploaded your data? Understanding your available variables will help us craft a more specific and testable hypothesis. What's the general relationship you're interested in exploring?")
+    return(paste0(
+      "I see you're thinking about your hypothesis. Before we dive deep, have you uploaded your data? ",
+      "Understanding your available variables will help us craft a more specific and testable hypothesis.\n\n",
+      "More importantly, what does the existing literature suggest about this relationship? ",
+      "Without grounding your hypothesis in prior research, we risk pursuing questions that have already been answered ",
+      "or using approaches that have proven ineffective.\n\n",
+      "What's the general relationship you're interested in exploring, and what evidence supports this as a worthwhile investigation?"
+    ))
   }
   
   # Data-related questions
@@ -67,12 +95,15 @@ generate_hypothesis_response <- function(user_input, context, values) {
   
   # Causal vs associational clarification
   if (grepl("causal|cause|effect|impact", input_lower)) {
-    return("You're interested in causal inference. That's great, but it comes with additional requirements. Can you tell me:
-1. Is your treatment/exposure randomly assigned, or is this observational data?
-2. What potential confounders might affect both your treatment and outcome?
-3. Are there any time-ordering considerations we should account for?
+    return("You're interested in causal inference. That's excellent, but let me challenge you with what the literature tells us:
 
-Remember, establishing causation requires careful consideration of these factors.")
+Most causal claims in observational studies fail to hold up under scrutiny. Before proceeding, I need to know:
+1. What does the current literature say about this causal relationship? Have randomized trials been conducted?
+2. What confounders have previous studies identified as problematic?
+3. Have instrumental variable or natural experiment approaches been used successfully in this domain?
+4. What is the strongest evidence available for causation versus correlation?
+
+Without addressing these literature-based concerns, we risk adding to the pile of spurious causal claims. What evidence from rigorous studies supports your causal hypothesis?")
   }
   
   # Power and sample size concerns
@@ -132,7 +163,7 @@ Remember, a well-formulated hypothesis guides the entire analysis, so let's make
 generate_planning_response <- function(user_input, context, values) {
   input_lower <- tolower(user_input)
   
-  # Power analysis discussion
+  # Power analysis discussion with literature benchmarking
   if (grepl("power|mde|detect|effect size", input_lower)) {
     if (!is.null(context$plan$mde)) {
       mde_value <- as.numeric(gsub("[^0-9.]", "", context$plan$mde))
@@ -140,12 +171,19 @@ generate_planning_response <- function(user_input, context, values) {
       
       return(paste0(
         "Your minimum detectable effect size indicates you can reliably detect ", interpretation, " effects. ",
-        "This means:\n",
-        "- Smaller effects might exist but go undetected (Type II error)\n",
-        "- You have adequate power for effects of this magnitude or larger\n",
-        "- Consider whether effects smaller than this would be practically meaningful\n\n",
-        "Is this MDE acceptable for your research question? If not, we might need to consider alternative approaches."
+        "But here's the critical question: what does the literature say about realistic effect sizes in your domain?\n\n",
+        
+        "I challenge you to justify this MDE based on evidence:\n",
+        "- What effect sizes have meta-analyses reported for similar interventions?\n",
+        "- Are you powered to detect the smallest effect of clinical/practical importance?\n",
+        "- Have previous studies in your field been underpowered, leading to false negatives?\n",
+        "- What would constitute a meaningful effect in your specific context?\n\n",
+        
+        "Without literature-based benchmarks, power analyses are just statistical gymnastics. ",
+        "Show me the evidence that supports targeting effects of this magnitude."
       ))
+    } else {
+      return("Before we discuss power, I need to see evidence from the literature. What effect sizes should we realistically expect? Don't give me textbook conventions (small/medium/large) - show me what actual studies in your domain have found. Your power analysis should be grounded in empirical evidence, not statistical defaults.")
     }
   }
   
