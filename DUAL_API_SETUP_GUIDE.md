@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Scientific Methods Engine now requires **both** Anthropic and Perplexity API keys for optimal functionality. The system will guide users through a two-step setup process to configure both APIs before accessing the research phases.
+The Autumn now requires **both** Anthropic and Perplexity API keys for optimal functionality. The system will guide users through a two-step setup process to configure both APIs before accessing the research phases.
 
 ## User Flow Scenarios
 
