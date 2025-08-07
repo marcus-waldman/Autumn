@@ -1,8 +1,4 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
+<img width="256" height="256" alt="image" src="https://github.com/user-attachments/assets/f5ba4725-52b3-4d61-b794-08381889cf3a" />
 
 # Autumn - Accelerating Scientific Discovery Through AI-Enhanced Collaboration
 
