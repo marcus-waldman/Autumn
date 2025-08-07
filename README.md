@@ -4,274 +4,134 @@ editor_options:
     wrap: 72
 ---
 
-# Scientific Method Engine - A/I (SME-AI)
+# Autumn - Accelerating Scientific Discovery Through AI-Enhanced Collaboration
 
-An RShiny App where the the user and AI interactively engage in the
-scientific method to learn from data.
+Autumn transforms how researchers test hypotheses by combining the rigor of the scientific method with the power of AI-assisted reasoning. Built as an RShiny application, it guides users through a structured research journey while fostering both scientific discovery and personal growth as researchers.
 
-## Important Notes
+## 🚀 Why Autumn?
 
-### Data Privacy
+Traditional statistical software treats analysis as a mechanical process. Autumn reimagines research as a collaborative journey where AI serves as a knowledgeable companion, challenging assumptions with evidence from current literature and ensuring every analytical decision can withstand scientific scrutiny.
 
--   All data processing occurs locally in your R environment
--   No data is uploaded to external servers
--   Results can be shared via JSON format while maintaining privacy
+By integrating real-time literature synthesis with statistical analysis, Autumn accelerates the path from hypothesis to discovery—helping researchers avoid dead ends, identify promising directions, and produce more robust conclusions.
 
-### Statistical Considerations
+## ✨ Key Features
 
-1.  **Power Analysis**
-    -   MDE \< 0.2: Very small effect (may be hard to detect)
-    -   MDE 0.2-0.5: Small effect
-    -   MDE 0.5-0.8: Medium effect
-    -   MDE \> 0.8: Large effect (easier to detect)
-2.  **Sample Size Requirements**
-    -   Minimum 20 observations for basic analyses
-    -   For group comparisons: At least 10 per group
-    -   For regression: 10-20 observations per predictor
-3.  **Causal Inference**
-    -   Causal claims require careful consideration
-    -   The app implements basic adjustment for confounders
-    -   Results should be interpreted with caution
-    -   Consider unmeasured confounding
+### Privacy-First Architecture
+- **Local data processing** - Raw data never leaves your machine
+- **HIPAA/GDPR compliant** - Only aggregated statistics shared with AI
+- **Secure collaboration** - Maintain full control over sensitive research data
 
-### Troubleshooting
+### Evidence-Based AI Reasoning
+- **Dual AI integration** - Anthropic for reasoning + Perplexity for literature
+- **Real-time literature grounding** - Every suggestion backed by current research
+- **Skeptical collaboration** - AI challenges assumptions with specific citations
+- **Meta-analysis synthesis** - Aggregates findings across multiple studies
 
-1.  **"File must contain a data frame or tibble"**
-    -   Ensure your RDS file contains a data.frame or tibble object
-    -   Use `saveRDS(your_data, "filename.rds")` to save properly
-2.  **"Missing variables" error**
-    -   Check that selected variables exist in your dataset
-    -   Variable names are case-sensitive
-3.  **Power too low**
-    -   Consider simplifying your analysis
-    -   Focus on larger effect sizes
-    -   Collect more data if possible
-4.  **Analysis fails to execute**
-    -   Check for missing values in key variables
-    -   Ensure appropriate variable types (numeric for continuous
-        outcomes)
-    -   Review error messages in execution status
+### Four-Phase Scientific Method
 
-### Best Practices
+1. **Hypothesis Formulation** - Iterative refinement through Socratic dialogue
+2. **Analytic Planning** - Power analysis with literature-based effect sizes
+3. **Implementation** - Automated R code generation with plain-language explanations
+4. **Analysis & Interpretation** - Context-aware results discussion
 
-1.  **Hypothesis Formulation**
-    -   Be specific and measurable
-    -   State expected direction of effect
-    -   Ensure hypothesis is testable with available data
-2.  **Variable Selection**
-    -   Choose theoretically relevant covariates
-    -   Avoid including too many predictors relative to sample size
-    -   Consider multicollinearity for multiple predictors
-3.  **Interpretation**
-    -   Statistical significance ≠ practical significance
-    -   Consider effect sizes, not just p-values
-    -   Acknowledge limitations honestly
-    -   Compare results to literature benchmarks
-4.  **Reporting**
-    -   Download both HTML and R Markdown files
-    -   The R Markdown can be further edited and customized
-    -   Include all relevant assumptions and limitations
+### Technical Capabilities
+- **Statistical tests**: T-tests, ANOVA, regression (linear/logistic), chi-square
+- **Causal inference**: Propensity scores, instrumental variables, difference-in-differences
+- **Power analysis**: MDE calculations with literature benchmarking
+- **Reproducible research**: R Markdown generation with APA formatting
 
-## File Structure
+## 🛠️ Technology Stack
 
-```         
-scientific-methods-engine-ai/
-├── app.R                    # Main Shiny application
-├── R/
-│   ├── phase1_hypothesis.R  # Hypothesis formulation logic
-│   ├── phase2_planning.R    # Analytic planning logic
-│   ├── phase3_implementation.R # Implementation logic
-│   ├── phase4_analysis.R    # Analysis and reporting logic
-│   └── utils.R             # Utility functions
-├── www/
-│   └── styles.css          # Custom styling
-├── data/
-│   ├── example_medical_data.rds    # Example causal data
-│   └── example_lifestyle_data.rds  # Example associational data
-├── output/
-│   └── (generated files)    # Reports generated during analysis
-└── generate_example_data.R  # Script to create example datasets
-```
+- **Frontend**: RShiny with reactive programming
+- **AI Integration**: `ellmer` package for Anthropic Claude API
+- **Knowledge Base**: Perplexity API for academic literature search
+- **Data Format**: RDS files for secure local processing
+- **Output**: Interactive HTML reports via R Markdown
 
-## Extending the Application
+## 📊 How It Accelerates Discovery
 
-### Adding New Statistical Tests
+### 1. Prevents Wasted Effort
+- Literature integration identifies already-answered questions
+- Power analysis prevents underpowered studies
+- Effect size benchmarking sets realistic expectations
 
-To add a new test, modify these files:
+### 2. Improves Research Quality
+- Enforces rigorous causal inference standards
+- Documents all assumptions transparently
+- Challenges confirmation bias through skeptical AI
 
-1.  `phase2_planning.R`: Add test to selection dropdown
-2.  `phase3_implementation.R`: Add code generation in
-    `generate_analysis_function()`
-3.  `utils.R`: Add power/MDE calculations for the new test
+### 3. Democratizes Expertise
+- Makes advanced methods accessible to non-statisticians
+- Provides plain-language explanations of complex concepts
+- Builds researcher capabilities over time
 
-### Customizing Reports
+### 4. Reduces Time to Insight
+- Automated code generation eliminates programming barriers
+- Concurrent literature search provides immediate context
+- Structured workflow prevents analytical wandering
 
-Edit `phase4_analysis.R` to modify: - Report structure in
-`generate_final_report()` - R Markdown template in
-`generate_rmd_template()` (in phase2_planning.R)
+## 🎯 Use Cases
 
-### Adding Visualizations
+- **Clinical Researchers**: 
+- **Social Scientists**:
+- **Public Health**: 
+- **Education Researchers**: 
+- **Behavioral Scientists**: 
 
-Modify `phase3_implementation.R` to add new plot types in the results
-visualization section.
+## 🔧 Installation
 
-## Support and Contributions
-
-This is a minimum workable example designed to demonstrate the concept
-of a scientific methods engine. For production use, consider:
-
--   Adding more statistical tests
--   Implementing advanced causal inference methods
--   Adding more robust error handling
--   Creating unit tests
--   Implementing user authentication for multi-user environments
-
-## License
-
-This project is provided as-is for educational and research purposes.
-
-------------------------------------------------------------------------
-
-For questions or issues, please refer to the inline documentation in the
-source code or create an issue in the project repository. Overview
-
-The Scientific Methods Engine is an R Shiny application designed to
-guide users through a structured scientific analysis following the four
-phases of the scientific method:
-
-1.  **Hypothesis Formulation** - Define and validate your research
-    question
-2.  **Analytic Planning** - Develop a statistical plan with power
-    analysis
-3.  **Implementation** - Execute the analysis with generated R code
-4.  **Analysis** - Interpret results and generate reports
-
-## Installation and Setup
-
-### Prerequisites
-
-1.  **R** (version 4.0 or higher)
-2.  **RStudio** (recommended for easy execution)
-3.  **Required R packages**:
-
-``` r
+```r
 # Install required packages
-install.packages(c(
-  "shiny",
-  "shinydashboard",
-  "DT",
-  "tidyverse",
-  "jsonlite",
-  "knitr",
-  "rmarkdown",
-  "ggplot2",
-  "broom"
-))
-```
+install.packages(c("shiny", "shinydashboard", "ellmer", 
+                   "tidyverse", "DT", "knitr", "rmarkdown"))
 
-### Running the Application
+# Clone repository
+git clone https://github.com/marcus-waldman/Autumn.git
 
-1.  Open RStudio
-2.  Set your working directory to the project folder:
+# Set up API keys in .Renviron
+ANTHROPIC_API_KEY=your_anthropic_key
+PERPLEXITY_API_KEY=your_perplexity_key
 
-``` r
-setwd("C:/Users/marcu/git-repositories/scientific-methods-engine-ai")
-```
-
-3.  Generate example data (first time only):
-
-``` r
-source("generate_example_data.R")
-```
-
-4.  Launch the application:
-
-``` r
+# Run the application
 shiny::runApp("app.R")
 ```
 
-## Using the Application
+## 🤝 The Autumn Philosophy
 
-### Phase 1: Hypothesis Formulation
+Autumn embodies "Companionship in Discovery" - treating users not as operators of statistical software, but as scientists on a journey of understanding. Every interaction is designed to leave researchers more capable than before, building confidence through supportive challenge and celebration of intellectual growth.
 
-1.  **Upload Data**
-    -   Click "Choose RDS File" and select your `.rds` data file
-    -   Example files are provided in the `data/` folder:
-        -   `example_medical_data.rds` - For causal hypothesis testing
-        -   `example_lifestyle_data.rds` - For associational analysis
-2.  **Formulate Hypothesis**
-    -   Enter a clear, testable hypothesis
-    -   Select hypothesis type:
-        -   **Associational**: Examines relationships between variables
-        -   **Causal**: Tests cause-and-effect relationships
-3.  **Select Variables**
-    -   Choose your outcome variable
-    -   For causal hypotheses: Select treatment variable and covariates
-    -   For associational: Select predictor variables
-4.  **Review Validation**
-    -   Check data validation results
-    -   Ensure adequate sample size and variable types
-5.  **Confirm** to proceed to Phase 2
+## 🚧 Roadmap
 
-### Phase 2: Analytic Planning
+- [ ] Expand statistical methods (survival analysis, multilevel models)
+- [ ] Enhanced visualization capabilities
+- [ ] Multi-language support
+- [ ] Integration with electronic health records
+- [ ] Collaborative team features
 
-1.  **Power Analysis**
-    -   Set significance level (α, typically 0.05)
-    -   Set desired power (typically 0.80)
-    -   Review Minimum Detectable Effect Size (MDE)
-2.  **Select Statistical Test**
-    -   T-test: Compare two groups
-    -   ANOVA: Compare multiple groups
-    -   Linear Regression: Continuous outcome with predictors
-    -   Logistic Regression: Binary outcome
-    -   Chi-square: Categorical variables
-3.  **Add Literature Benchmarks** (optional)
-    -   Click "Add Benchmark" to enter effect sizes from similar studies
-    -   Helps contextualize your expected results
-4.  **Review Analytic Plan**
-    -   Ensure the plan aligns with your hypothesis
-    -   **Approve Plan** to generate R Markdown template
+## 📚 Documentation
 
-### Phase 3: Implementation
+Comprehensive documentation available in `/doc`:
+- [Project Overview](doc/project-overview.md)
+- [Technical Architecture](doc/technical-architecture.md)
+- [UI/UX Design Principles](doc/uiux-design-principles.md)
+- [Implementation Guidelines](doc/implementation-guidelines.md)
 
-1.  **Review Generated Code**
-    -   Examine the R function created for your analysis
-    -   The code is tailored to your specific hypothesis and data
-2.  **Execute Analysis**
-    -   Click "Execute Analysis" to run the statistical tests
-    -   View execution status and any errors
-3.  **Review Results**
-    -   Examine plots and statistical summaries
-    -   **Confirm Results** to proceed to final phase
+## 👥 Contributing
 
-### Phase 4: Analysis & Interpretation
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
-1.  **Review Final Report**
-    -   Complete analysis report with:
-        -   Executive summary
-        -   Methods description
-        -   Results with tables and figures
-        -   Statistical interpretation
-        -   Limitations
-        -   Conclusions
-2.  **Export Results**
-    -   Download HTML Report: Formatted final report
-    -   Download R Markdown Source: Editable analysis document
+## 📄 License
 
-## Example Hypotheses
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### Causal Hypothesis Example
+## 🙏 Acknowledgments
 
-Using `example_medical_data.rds`: - **Hypothesis**: "The treatment will
-significantly reduce outcome scores compared to control" - **Type**:
-Causal - **Outcome**: outcome_score - **Treatment**: treatment_group -
-**Covariates**: age, baseline_score, diabetes, hypertension
+Autumn represents a new paradigm in scientific software—where AI doesn't replace human judgment but amplifies human intelligence. By grounding every decision in evidence and treating users as partners in discovery, we're not just analyzing data; we're accelerating the pace of human knowledge.
 
-### Associational Hypothesis Example
+---
 
-Using `example_lifestyle_data.rds`: - **Hypothesis**: "Stress level and
-sleep hours are significantly associated with health scores" - **Type**:
-Associational - **Outcome**: health_score - **Predictors**:
-stress_level, sleep_hours, exercise_hours_per_week
+*"The best way to have a good idea is to have lots of ideas and throw the bad ones away." - Linus Pauling*
 
-## 
+*Autumn helps you identify the good ones faster.*
+
+##
