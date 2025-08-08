@@ -14,16 +14,28 @@ Autumn is a collaborative platform that guides users through rigorous hypothesis
 
 ## Key Documents
 
-1. **[Vision & Philosophy](vision-philosophy.md)** - Core mission and reasoning approach
-2. **[UI/UX Design Principles](uiux-principles.md)** - Interface design and emotional goals
-3. **[Technical Architecture](technical-architecture.md)** - System specifications and data flow
-4. **[Causal Inference Requirements](causal-inference.md)** - Standards for causal hypotheses
-5. **[Chat Interface Specifications](chat-interface.md)** - Conversational design by phase
-6. **[Implementation Guidelines](implementation-guidelines.md)** - Development constraints and requirements
+### Core Documentation
+1. **[Autumn Philosophy](autumn-philosophy.md)** - Core philosophical foundation
+2. **[Technical Architecture](technical-architecture.md)** - System specifications and data flow
+3. **[API Model Reference](api-model-reference.md)** - Complete API configuration and troubleshooting
+
+### Implementation Guides
+4. **[Implementation Guidelines](implementation-guidelines.md)** - Development constraints and requirements
+5. **[Data Format Specifications](data-format-specifications.md)** - RDS file requirements and validation
+6. **[Deployment Guide](deployment-guide.md)** - shinyapps.io deployment instructions
+
+### Design & Interface
+7. **[UI/UX Design Principles](uiux-design-principles.md)** - Interface design and emotional goals
+8. **[Chat Interface Specifications](chat-interface-specifications.md)** - Conversational design by phase
+
+### Research Standards
+9. **[Causal Inference Requirements](causal-inference.md)** - Standards for causal hypotheses
+10. **[AI Code of Conduct](ai-code-of-conduct.md)** - Ethical standards for AI
+11. **[Investigator Code of Conduct](investigator-code-of-conduct.md)** - Ethical standards for researchers
 
 ## Quick Start for Developers
 
-1. Review the Vision & Philosophy to understand project goals
+1. Review the Autumn Philosophy to understand project goals
 2. Study the Technical Architecture for system requirements
 3. Implement the Chat Interface following phase-specific guidelines
 4. Apply UI/UX principles throughout development
@@ -32,11 +44,15 @@ Autumn is a collaborative platform that guides users through rigorous hypothesis
 
 ## Technology Stack
 
-- **Frontend**: RShiny
-- **AI Integration**: ellmer package for Anthropic API
-- **Knowledge Base**: Perplexity API for literature search
+- **Frontend**: RShiny with dynamic model selection interface
+- **AI Integration**: Direct Anthropic API integration with configurable models
+- **Knowledge Base**: Perplexity API for literature search with configurable models
 - **Data Format**: RDS files only
 - **Output**: Interactive HTML via R Markdown
+
+## AI Model Configuration
+
+Autumn supports dynamic model selection for both Anthropic and Perplexity APIs. Users can switch models in real-time through the AI Assistant Status panel. For complete model specifications, troubleshooting, and configuration details, see **[API Model Reference](api-model-reference.md)**.
 
 ## Privacy & Compliance
 

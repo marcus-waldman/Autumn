@@ -8,12 +8,17 @@ This RShiny application guides users through rigorous hypothesis testing using t
 All project specifications are organized into the following documents:
 
 1. **[Project Overview](project-overview.md)** - Executive summary and quick-start guide
-2. **[Vision & Philosophy](vision-philosophy.md)** - Core mission and reasoning approach  
-3. **[UI/UX Design Principles](uiux-principles.md)** - Interface design and emotional goals
+2. **[Autumn Philosophy](autumn-philosophy.md)** - Core philosophical foundation and reasoning approach  
+3. **[UI/UX Design Principles](uiux-design-principles.md)** - Interface design and emotional goals
 4. **[Technical Architecture](technical-architecture.md)** - System specifications and data flow
-5. **[Causal Inference Requirements](causal-inference.md)** - Standards for causal hypotheses
-6. **[Chat Interface Specifications](chat-interface.md)** - Conversational design by phase
+5. **[API Model Reference](api-model-reference.md)** - Comprehensive API configuration and troubleshooting
+6. **[Chat Interface Specifications](chat-interface-specifications.md)** - Conversational design by phase
 7. **[Implementation Guidelines](implementation-guidelines.md)** - Development constraints and requirements
+8. **[Causal Inference Requirements](causal-inference.md)** - Standards for causal hypotheses
+9. **[Data Format Specifications](data-format-specifications.md)** - RDS file requirements and structure
+10. **[Deployment Guide](deployment-guide.md)** - Instructions for shinyapps.io deployment
+11. **[AI Code of Conduct](ai-code-of-conduct.md)** - Ethical standards for AI collaborators
+12. **[Investigator Code of Conduct](investigator-code-of-conduct.md)** - Ethical standards for researchers
 
 ## For Developers
 Start with the Project Overview for orientation, then proceed to the Technical Architecture and Implementation Guidelines. Reference other documents as needed during development.

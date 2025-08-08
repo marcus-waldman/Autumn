@@ -4,7 +4,7 @@
 source("R/perplexity_integration.R")
 
 # Main enhanced chat function that orchestrates API calls
-enhanced_chat <- function(user_input, phase, values) {
+enhanced_chat <- function(user_input, phase, values, anthropic_model = "claude-3-5-sonnet-20241022", perplexity_model = "sonar-pro") {
   
   # Step 1: Initial Anthropic response with literature needs identification
   initial_prompt <- paste0(
@@ -27,7 +27,7 @@ enhanced_chat <- function(user_input, phase, values) {
   
   # Generate search needs with fallback
   search_queries <- tryCatch({
-    initial_response <- call_anthropic_api(initial_prompt)
+    initial_response <- call_anthropic_api(initial_prompt, model = anthropic_model)
     extract_search_queries(initial_response)
   }, error = function(e) {
     # Fallback to general searches based on phase and input
@@ -36,7 +36,7 @@ enhanced_chat <- function(user_input, phase, values) {
   
   # Step 2: Execute literature searches in parallel if possible
   literature_results <- lapply(search_queries, function(query) {
-    result <- cached_literature_search(query)
+    result <- cached_literature_search(query, perplexity_model = perplexity_model)
     Sys.sleep(0.5)  # Small delay to avoid rate limiting
     return(result)
   })
@@ -72,10 +72,10 @@ enhanced_chat <- function(user_input, phase, values) {
   
   # Generate evidence-based response
   final_response <- tryCatch({
-    call_anthropic_api(final_prompt)
+    call_anthropic_api(final_prompt, model = anthropic_model)
   }, error = function(e) {
-    # Fallback to original response system
-    generate_ai_response(phase, user_input, values)
+    # Fallback to basic response
+    paste("I'm here to help with your scientific analysis. Due to a technical issue, I can't access literature right now, but I can still discuss your", phase, "with you. What would you like to explore?")
   })
   
   # Store literature results in values for UI display
@@ -92,7 +92,7 @@ enhanced_chat <- function(user_input, phase, values) {
 }
 
 # Helper function to call Anthropic API
-call_anthropic_api <- function(prompt, model = "claude-3-sonnet-20240229") {
+call_anthropic_api <- function(prompt, model = "claude-3-5-sonnet-20241022") {
   
   api_key <- Sys.getenv("ANTHROPIC_API_KEY")
   if (nchar(api_key) == 0) {
@@ -125,7 +125,7 @@ call_anthropic_api <- function(prompt, model = "claude-3-sonnet-20240229") {
   
   if (status_code(response) == 200) {
     content <- fromJSON(content(response, "text"))
-    return(content$content[[1]]$text)
+    return(content$content$text[1])
   } else {
     stop(paste("Anthropic API call failed:", status_code(response)))
   }
@@ -235,11 +235,11 @@ generate_fallback_searches <- function(phase, user_input) {
 }
 
 # Enhanced response wrapper that includes literature context
-generate_enhanced_response <- function(phase, user_input, values, use_literature = TRUE) {
+generate_enhanced_response <- function(phase, user_input, values, use_literature = TRUE, anthropic_model = "claude-3-5-sonnet-20241022", perplexity_model = "sonar-pro") {
   
   if (use_literature) {
     # Use the enhanced chat with literature integration
-    enhanced_result <- enhanced_chat(user_input, phase, values)
+    enhanced_result <- enhanced_chat(user_input, phase, values, anthropic_model = anthropic_model, perplexity_model = perplexity_model)
     
     # Store literature results in values for UI display
     values$last_literature_searches <- enhanced_result$literature_results
@@ -247,8 +247,8 @@ generate_enhanced_response <- function(phase, user_input, values, use_literature
     return(enhanced_result$response)
     
   } else {
-    # Fallback to original response system
-    return(generate_ai_response(phase, user_input, values))
+    # Fallback to basic response without literature
+    return(paste("I'm here to help with your", phase, "discussion. What would you like to explore together?"))
   }
 }
 

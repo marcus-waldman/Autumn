@@ -111,36 +111,26 @@ For every significant claim or methodological decision:
 
 ## Enhanced Chat Function
 
-```r
-enhanced_chat <- function(user_input, phase, context) {
-  # Determine if literature search needed
-  needs_evidence <- detect_evidence_need(user_input, phase)
-  
-  if (needs_evidence) {
-    # Step 1: Identify search queries
-    search_queries <- generate_search_queries(user_input, context)
-    
-    # Step 2: Execute searches
-    literature <- map(search_queries, safe_literature_search)
-    
-    # Step 3: Synthesize with Anthropic
-    response <- ellmer_chat(
-      system_prompt = get_phase_prompt(phase),
-      prompt = format_enhanced_prompt(user_input, literature),
-      temperature = 0.7
-    )
-  } else {
-    # Direct response without literature
-    response <- ellmer_chat(
-      system_prompt = get_phase_prompt(phase),
-      prompt = user_input,
-      temperature = 0.7
-    )
-  }
-  
-  return(response)
-}
-```
+The enhanced chat function orchestrates interaction between Anthropic and Perplexity APIs:
+
+**Key Features**:
+- Dynamic model selection through UI
+- Literature search integration with Perplexity API
+- Automatic caching of literature results
+- Graceful fallback on API failures
+- Rate limiting (0.5s between searches)
+
+**Implementation Pattern**:
+1. Generate literature search queries via Anthropic
+2. Execute searches via Perplexity with caching
+3. Synthesize evidence into final response
+4. Return both response and literature citations
+
+For implementation details and code examples, see the source files in `/R` directory.
+
+## Model Selection Integration
+
+Model selection is handled through the UI with real-time switching capabilities. For complete model configuration details and API testing implementation, see **[API Model Reference](api-model-reference.md)**.
 
 ## Conversation Management
 

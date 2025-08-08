@@ -57,32 +57,22 @@
 
 ## Literature Integration
 
-### Manual Entry System
-Since no API connection to literature databases:
+### API-Based Literature Search
+Literature integration is powered by the Perplexity API, providing real-time access to academic sources:
 
-**Input form fields**:
-- Author(s), Year
-- Study title
-- Effect size (with CI)
-- Sample size
-- Study design type
-- Population characteristics
-- Key findings
-- URL/DOI (optional)
+**Integration Features**:
+- Automatic literature searches during AI responses
+- Real-time citation extraction and formatting
+- Evidence synthesis across multiple studies
+- Caching to minimize redundant API calls
+- Graceful fallback to basic mode if Perplexity unavailable
 
-**Storage format**:
-```r
-literature_db <- data.frame(
-  authors = character(),
-  year = integer(),
-  effect_size = numeric(),
-  ci_lower = numeric(),
-  ci_upper = numeric(),
-  sample_size = integer(),
-  design = factor(levels = c("RCT", "Quasi-Exp", "Observational")),
-  notes = character()
-)
-```
+**API Configuration**:
+- Set `PERPLEXITY_API_KEY` environment variable
+- Select model through UI dropdown (Sonar Pro, Sonar, Sonar Reasoning)
+- Test connection via "Test Connections" button
+
+For complete API configuration details, see **[API Model Reference](api-model-reference.md)**.
 
 ## Scope and Constraints
 
@@ -135,6 +125,16 @@ literature_db <- data.frame(
 - Never exposed in UI
 - Clear setup instructions
 - Validation before use
+
+## API Configuration
+
+For comprehensive API configuration, model compatibility, and troubleshooting information, see **[API Model Reference](api-model-reference.md)**.
+
+**Quick Setup**:
+1. Set environment variables: `ANTHROPIC_API_KEY` and `PERPLEXITY_API_KEY`
+2. Select models via UI dropdowns in AI Assistant Status panel
+3. Test connections using built-in diagnostic button
+4. Application handles model-specific response formats automatically
 
 ## Development Priorities
 

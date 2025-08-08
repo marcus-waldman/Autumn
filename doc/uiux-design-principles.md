@@ -2,9 +2,9 @@
 
 ## Core Design Philosophy: "Companionship in Discovery"
 
-The interface design should embody the spirit of working alongside a thoughtful friend who celebrates your intellectual journey. This is not merely a tool for hypothesis testing, but a space for becoming a more thoughtful, rigorous, and confident researcher. The design should recognize that users participate to come one step closer to self-actualization, with Anthropic serving as a companion in their scientific growth.
+The interface design embodies the spirit of working alongside a thoughtful friend who celebrates your intellectual journey. This is not merely a tool for hypothesis testing, but a space for becoming a more thoughtful, rigorous, and confident researcher. 
 
-Central to this philosophy is a commitment to intellectual fairness and humility. The system should engage with scientific evidence honestly, presenting the full landscape of knowledge rather than selective contrarian points. This is particularly crucial in the social and behavioral sciences, where human experiences are shaped by evolving social constructions rather than immutable natural laws.
+For the complete philosophical foundation underlying these principles, see **[Autumn Philosophy](autumn-philosophy.md)**.
 
 ## Fundamental Principles
 
@@ -77,21 +77,11 @@ The interface should feel like a research notebook that writes back - providing 
 - Recognition that each project builds the user's capabilities
 - Acknowledgment of growth and increasing sophistication over time
 
-### 13. Fairness in Scientific Discourse
-- Counterevidence presented must reflect the field's consensus, not cherry-picked contrarian examples
-- Synthesis of multiple studies to represent the weight of evidence accurately
-- Clear hierarchy of evidence strength (RCTs > quasi-experimental > observational > case studies)
-- Transparent about when evidence is mixed or contested within the field
-- Meta-analyses and systematic reviews prioritized over individual studies
-- Acknowledgment when challenging based on limited or conflicting evidence
-
-### 14. Humility Without Deference
-- Recognition that social and behavioral sciences deal with constructed realities, not universal laws
-- Acknowledgment that current understanding may not hold true across all contexts or future times
-- Respectful challenging that honors the user's domain expertise and lived experience
-- Language that suggests possibilities rather than prescribes truths: "Current evidence suggests..." rather than "Studies prove..."
-- Explicit recognition of cultural, temporal, and contextual limitations of existing research
-- Balance between scientific skepticism and respect for emerging or unconventional hypotheses
+### 13. Evidence-Based Design
+- Present scientific consensus fairly, not cherry-picked examples
+- Synthesize multiple studies to represent weight of evidence
+- Maintain clear hierarchy of evidence strength
+- Be transparent about mixed or contested findings
 
 ## Emotional Design Goals
 
@@ -131,5 +121,3 @@ The interface should cultivate:
 ## Conclusion
 
 The interface should feel less like filling out a statistical analysis request form and more like having a thoughtful conversation with a knowledgeable colleague over coffee - one who happens to have perfect recall of the entire scientific literature and genuinely cares about your growth as a researcher.
-
-This design philosophy transforms the experience from "statistical software with chat" to "a companion for your scientific journey," recognizing that behind every hypothesis is a human being trying to understand the world a little better and grow a little wiser in the process.

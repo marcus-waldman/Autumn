@@ -14,6 +14,7 @@ library(httr)
 source("R/perplexity_integration.R")
 source("R/enhanced_chat_functions.R") 
 source("R/phase_specific_searches.R")
+source("R/api_testing.R")
 
 # Define chat UI component
 chatUI <- function(id) {
@@ -21,11 +22,10 @@ chatUI <- function(id) {
   tagList(
     tags$div(
       id = ns("chat-container"),
-      style = "height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #f9f9f9; border-radius: 8px;",
       uiOutput(ns("chat_history"))
     ),
     tags$div(
-      style = "margin-top: 10px;",
+      class = "chat-input-container",
       fluidRow(
         column(10, 
           textAreaInput(ns("user_input"), 
@@ -48,7 +48,20 @@ chatUI <- function(id) {
 
 # Define UI
 ui <- dashboardPage(
-  dashboardHeader(title = "Scientific Methods Engine - AI Collaborative"),
+  dashboardHeader(
+    title = "Scientific Methods Engine - AI Collaborative",
+    tags$li(
+      class = "dropdown",
+      tags$div(
+        class = "theme-toggle",
+        id = "theme-toggle",
+        onclick = "toggleTheme()",
+        tags$span(class = "theme-toggle-icon sun", "☀️"),
+        tags$span(class = "theme-toggle-text", "Light"),
+        tags$span(class = "theme-toggle-icon moon", "🌙")
+      )
+    )
+  ),
   
   dashboardSidebar(
     sidebarMenu(
@@ -95,10 +108,54 @@ ui <- dashboardPage(
       conditionalPanel(
         condition = "!output.anthropic_key_required && !output.perplexity_key_required",
         tags$div(
-          tags$p(icon("check-circle", style = "color: #28a745;"), " Anthropic Ready",
-                 style = "color: #28a745; margin: 0; font-size: 0.9em;"),
-          tags$p(icon("check-circle", style = "color: #28a745;"), " Literature Enhanced",
-                 style = "color: #28a745; margin: 0; font-size: 0.9em;")
+          uiOutput("api_status_display"),
+          tags$br(),
+          
+          # Model Selection Controls
+          tags$div(
+            style = "margin-bottom: 15px;",
+            h6("Model Selection", style = "margin-bottom: 8px; color: #495057;"),
+            
+            # Anthropic Model Selection
+            tags$div(
+              style = "margin-bottom: 8px;",
+              tags$label("Anthropic Model:", style = "font-size: 0.85em; color: #6c757d; display: block; margin-bottom: 2px;"),
+              selectInput("anthropic_model", 
+                          label = NULL,
+                          choices = list(
+                            "Claude 3.5 Sonnet (Latest)" = "claude-3-5-sonnet-20241022",
+                            "Claude 3.5 Sonnet (June)" = "claude-3-5-sonnet-20240620",
+                            "Claude 3.5 Haiku" = "claude-3-5-haiku-20241022",
+                            "Claude 3 Opus" = "claude-3-opus-20240229",
+                            "Claude 3 Sonnet" = "claude-3-sonnet-20240229",
+                            "Claude 3 Haiku" = "claude-3-haiku-20240307"
+                          ),
+                          selected = "claude-3-5-sonnet-20241022",
+                          width = "100%")
+            ),
+            
+            # Perplexity Model Selection
+            conditionalPanel(
+              condition = "!output.perplexity_key_required",
+              tags$div(
+                style = "margin-bottom: 8px;",
+                tags$label("Perplexity Model:", style = "font-size: 0.85em; color: #6c757d; display: block; margin-bottom: 2px;"),
+                selectInput("perplexity_model", 
+                            label = NULL,
+                            choices = list(
+                              "Sonar Pro (Flagship)" = "sonar-pro",
+                              "Sonar (Standard)" = "sonar",
+                              "Sonar Reasoning" = "sonar-reasoning"
+                            ),
+                            selected = "sonar-pro",
+                            width = "100%")
+              )
+            )
+          ),
+          
+          actionButton("test_apis", "Test Connections", 
+                       class = "btn btn-sm btn-outline-info",
+                       icon = icon("wifi"))
         )
       ),
       conditionalPanel(
@@ -114,36 +171,95 @@ ui <- dashboardPage(
   ),
   
   dashboardBody(
+    # CSS includes at the top
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "styles.css"),
-      tags$style(HTML("
-        .chat-message {
-          margin-bottom: 15px;
-          padding: 10px;
-          border-radius: 8px;
-        }
-        .user-message {
-          background-color: #e3f2fd;
-          margin-left: 20%;
-          text-align: right;
-        }
-        .ai-message {
-          background-color: #f5f5f5;
-          margin-right: 20%;
-        }
-        .message-header {
-          font-weight: bold;
-          margin-bottom: 5px;
-          font-size: 0.9em;
-        }
-        .user-header {
-          color: #1976d2;
-        }
-        .ai-header {
-          color: #616161;
-        }
-      "))
+      tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
     ),
+    includeCSS("www/styles.css"),
+    
+    # Apply Refined Autumn Theme
+    tags$style(HTML("
+      :root {
+        /* Your Original 5 Colors */
+        --autumn-cream: #fdf6f2;    /* 253,246,242 - lightest */
+        --autumn-blue: #c0d8e3;     /* 192,216,227 - muted blue-gray */
+        --autumn-rose: #a78d8a;     /* 167,141,138 - dusty rose */
+        --autumn-coral: #e18a7a;    /* 225,138,122 - coral */
+        --autumn-peach: #eeb9a2;    /* 238,185,162 - light peach */
+        
+        /* Dark versions for proper contrast */
+        --autumn-dark: #3d2f2e;     /* 60% darker than dusty rose */
+        --autumn-darker: #2a1f1e;   /* 80% darker than dusty rose */
+        
+        /* Light Theme Variables */
+        --bg-primary: var(--autumn-cream);
+        --bg-secondary: rgba(192, 216, 227, 0.4);
+        --bg-card: var(--autumn-cream);
+        --text-primary: var(--autumn-dark);
+        --text-secondary: var(--autumn-rose);
+        --accent-primary: var(--autumn-coral);
+        --accent-secondary: var(--autumn-peach);
+        --border-color: rgba(167, 141, 138, 0.3);
+        --shadow-color: rgba(167, 141, 138, 0.2);
+      }
+      
+      body {
+        background-color: var(--bg-primary) !important;
+        color: var(--text-primary) !important;
+        transition: all 0.3s ease !important;
+      }
+      
+      .main-header .navbar {
+        background-color: var(--bg-card) !important;
+        border-bottom: 2px solid var(--accent-primary) !important;
+      }
+      
+      .content-wrapper {
+        background-color: var(--bg-primary) !important;
+      }
+      
+      .main-sidebar {
+        background-color: var(--bg-secondary) !important;
+      }
+      
+      .skin-blue .main-header .navbar {
+        background-color: var(--bg-card) !important;
+      }
+      
+      .theme-toggle {
+        background-color: var(--accent-primary) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 25px !important;
+        padding: 8px 16px !important;
+        margin-right: 10px !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+      }
+      
+      .theme-toggle:hover {
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 12px var(--shadow-color) !important;
+      }
+      
+      /* Dark Theme - Using your original colors as accents */
+      [data-theme='dark'] {
+        --bg-primary: var(--autumn-darker);        /* Very dark brown background */
+        --bg-secondary: rgba(61, 47, 46, 0.6);     /* Dark brown panels */
+        --bg-card: var(--autumn-dark);             /* Dark brown cards */
+        --text-primary: var(--autumn-cream);       /* Your cream for text */
+        --text-secondary: var(--autumn-blue);      /* Your blue-gray for secondary text */
+        --accent-primary: var(--autumn-coral);     /* Your coral (unchanged) */
+        --accent-secondary: var(--autumn-peach);   /* Your peach (unchanged) */
+        --border-color: rgba(167, 141, 138, 0.4);  /* Your dusty rose for borders */
+        --shadow-color: rgba(0, 0, 0, 0.4);        /* Darker shadows */
+      }
+      
+      /* Ensure smooth transitions */
+      * {
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+      }
+    ")),
     
     tabItems(
       # Anthropic API Key Setup (shown when no Anthropic API key found)
@@ -318,51 +434,56 @@ ui <- dashboardPage(
       tabItem(
         tabName = "hypothesis",
         fluidRow(
-          column(6,
+          column(3,
             box(
               title = "Phase 1: Hypothesis Formulation",
               width = 12,
               status = "primary",
               solidHeader = TRUE,
+              collapsible = TRUE,
+              collapsed = FALSE,
               
               h4("Step 1: Upload Data"),
               fileInput("data_file", 
                         "Choose RDS File",
                         accept = ".rds"),
               
-              verbatimTextOutput("data_summary"),
-              
-              tags$hr(),
-              
-              h4("Step 2: Initial Hypothesis"),
-              textAreaInput("hypothesis_input",
-                            "Enter your initial hypothesis:",
-                            rows = 3,
-                            placeholder = "Example: Treatment X will significantly reduce outcome Y compared to control"),
-              
-              radioButtons("hypothesis_type",
-                           "Hypothesis Type:",
-                           choices = list("Associational" = "associational",
-                                          "Causal" = "causal")),
-              
               conditionalPanel(
-                condition = "input.hypothesis_type == 'causal'",
-                h5("Causal Framework"),
-                textAreaInput("causal_mechanism",
-                              "Describe the causal mechanism:",
-                              rows = 2)
-              ),
-              
-              uiOutput("variable_selection"),
-              
-              actionButton("draft_hypothesis", 
-                           "Draft Hypothesis for Discussion",
-                           class = "btn-info",
-                           icon = icon("comments"))
+                condition = "output.data_uploaded",
+                verbatimTextOutput("data_summary"),
+                
+                tags$hr(),
+                
+                h4("Step 2: Initial Hypothesis"),
+                textAreaInput("hypothesis_input",
+                              "Enter your initial hypothesis:",
+                              rows = 3,
+                              placeholder = "Example: Treatment X will significantly reduce outcome Y compared to control"),
+                
+                radioButtons("hypothesis_type",
+                             "Hypothesis Type:",
+                             choices = list("Associational" = "associational",
+                                            "Causal" = "causal")),
+                
+                conditionalPanel(
+                  condition = "input.hypothesis_type == 'causal'",
+                  h5("Causal Framework"),
+                  textAreaInput("causal_mechanism",
+                                "Describe the causal mechanism:",
+                                rows = 2)
+                ),
+                
+                uiOutput("variable_selection"),
+                
+                actionButton("draft_hypothesis", 
+                             "Draft Hypothesis for Discussion",
+                             class = "btn-info",
+                             icon = icon("comments"))
+              )
             )
           ),
           
-          column(6,
+          column(9,
             box(
               title = uiOutput("hypothesis_collaboration_title"),
               width = 12,
@@ -414,7 +535,7 @@ ui <- dashboardPage(
       tabItem(
         tabName = "planning",
         fluidRow(
-          column(6,
+          column(3,
             box(
               title = "Phase 2: Analytic Planning",
               width = 12,
@@ -453,7 +574,7 @@ ui <- dashboardPage(
             )
           ),
           
-          column(6,
+          column(9,
             box(
               title = uiOutput("planning_collaboration_title"),
               width = 12,
@@ -505,7 +626,7 @@ ui <- dashboardPage(
       tabItem(
         tabName = "implementation",
         fluidRow(
-          column(6,
+          column(3,
             box(
               title = "Phase 3: Implementation",
               width = 12,
@@ -535,7 +656,7 @@ ui <- dashboardPage(
             )
           ),
           
-          column(6,
+          column(9,
             box(
               title = uiOutput("implementation_collaboration_title"),
               width = 12,
@@ -644,7 +765,44 @@ ui <- dashboardPage(
           )
         )
       )
-    )
+    ),
+    
+    # Theme Toggle JavaScript
+    tags$script(HTML("
+      // Theme management
+      function getTheme() {
+        return localStorage.getItem('theme') || 'light';
+      }
+      
+      function setTheme(theme) {
+        localStorage.setItem('theme', theme);
+        document.documentElement.setAttribute('data-theme', theme);
+        updateThemeToggle(theme);
+      }
+      
+      function toggleTheme() {
+        const currentTheme = getTheme();
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        setTheme(newTheme);
+      }
+      
+      function updateThemeToggle(theme) {
+        const toggleText = document.querySelector('.theme-toggle-text');
+        if (toggleText) {
+          toggleText.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
+        }
+      }
+      
+      // Initialize theme on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        const savedTheme = getTheme();
+        setTheme(savedTheme);
+      });
+      
+      // Apply theme immediately
+      const initialTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', initialTheme);
+    "))
   )
 )
 
@@ -687,7 +845,9 @@ server <- function(input, output, session) {
     api_key_set = FALSE,
     perplexity_key_set = FALSE,
     perplexity_enabled = FALSE,
-    skip_perplexity = FALSE
+    skip_perplexity = FALSE,
+    selected_anthropic_model = "claude-3-5-sonnet-20241022",
+    selected_perplexity_model = "sonar-pro"
   )
   
   # Check for Anthropic API key availability
@@ -713,6 +873,12 @@ server <- function(input, output, session) {
     !perplexity_key_available() && !values$skip_perplexity
   })
   outputOptions(output, "perplexity_key_required", suspendWhenHidden = FALSE)
+  
+  # Control data upload UI visibility
+  output$data_uploaded <- reactive({
+    !is.null(values$data)
+  })
+  outputOptions(output, "data_uploaded", suspendWhenHidden = FALSE)
   
   # Redirect to appropriate tab on startup
   observe({
@@ -795,7 +961,7 @@ server <- function(input, output, session) {
         Sys.setenv("ANTHROPIC_API_KEY" = api_key)
         values$api_key_set <- TRUE
         
-        showNotification("Anthropic API Key set successfully!", type = "success")
+        showNotification("Anthropic API Key set successfully!", type = "message")
         
         # Redirect to appropriate next step
         if (!perplexity_key_available() && !values$skip_perplexity) {
@@ -880,7 +1046,7 @@ server <- function(input, output, session) {
         Sys.setenv("PERPLEXITY_API_KEY" = api_key)
         values$perplexity_key_set <- TRUE
         
-        showNotification("Perplexity API Key set successfully! Literature integration enabled.", type = "success")
+        showNotification("Perplexity API Key set successfully! Literature integration enabled.", type = "message")
         
         # Redirect to hypothesis phase
         updateTabItems(session, "phases", "hypothesis")
@@ -1106,7 +1272,9 @@ server <- function(input, output, session) {
         values$chat_history[[phase]] <- append(values$chat_history[[phase]], list(user_msg))
         
         # Generate AI response based on phase and context
-        ai_response <- generate_ai_response(phase, input$user_input, values)
+        ai_response <- generate_ai_response(phase, input$user_input, values, 
+                                          anthropic_model = values$selected_anthropic_model,
+                                          perplexity_model = values$selected_perplexity_model)
         
         # Add AI response to history
         ai_msg <- list(sender = "ai", content = ai_response)
@@ -1132,6 +1300,128 @@ server <- function(input, output, session) {
     perplexity_key <- perplexity_key_available()
     anthropic_key <- anthropic_key_available()
     values$perplexity_enabled <- perplexity_key && anthropic_key && !values$skip_perplexity
+  })
+  
+  # API Status Testing
+  values$api_test_results <- reactiveVal(NULL)
+  
+  # Observe model selection changes
+  observeEvent(input$anthropic_model, {
+    req(input$anthropic_model)
+    values$selected_anthropic_model <- input$anthropic_model
+    showNotification(paste("Anthropic model changed to:", 
+                          names(which(sapply(c("Claude 3.5 Sonnet (Latest)" = "claude-3-5-sonnet-20241022",
+                                               "Claude 3.5 Sonnet (June)" = "claude-3-5-sonnet-20240620",
+                                               "Claude 3.5 Haiku" = "claude-3-5-haiku-20241022",
+                                               "Claude 3 Opus" = "claude-3-opus-20240229",
+                                               "Claude 3 Sonnet" = "claude-3-sonnet-20240229",
+                                               "Claude 3 Haiku" = "claude-3-haiku-20240307"), 
+                                             function(x) x == input$anthropic_model))[1])), 
+                   type = "message", duration = 3)
+  })
+  
+  observeEvent(input$perplexity_model, {
+    req(input$perplexity_model)
+    values$selected_perplexity_model <- input$perplexity_model
+    showNotification(paste("Perplexity model changed to:", 
+                          names(which(sapply(c("Sonar Pro (Flagship)" = "sonar-pro",
+                                               "Sonar (Standard)" = "sonar",
+                                               "Sonar Reasoning" = "sonar-reasoning"), 
+                                             function(x) x == input$perplexity_model))[1])), 
+                   type = "message", duration = 3)
+  })
+
+  # Test APIs when button is clicked
+  observeEvent(input$test_apis, {
+    showNotification("Testing API connections...", type = "message", duration = 2)
+    
+    # Run tests synchronously with selected models
+    test_results <- test_all_apis(
+      anthropic_model = values$selected_anthropic_model,
+      perplexity_model = values$selected_perplexity_model
+    )
+    values$api_test_results(test_results)
+    
+    if (test_results$literature_enabled) {
+      showNotification("✅ All APIs working! Literature integration active.", type = "message")
+    } else {
+      failed_apis <- c()
+      if (!test_results$anthropic$success) failed_apis <- c(failed_apis, "Anthropic")
+      if (!test_results$perplexity$success) failed_apis <- c(failed_apis, "Perplexity")
+      showNotification(paste("❌", paste(failed_apis, collapse = " and "), "API(s) failed"), type = "warning")
+    }
+  })
+  
+  # Initial API test on startup (delayed)
+  observe({
+    if (anthropic_key_available()) {
+      # Wait a bit before testing on startup
+      invalidateLater(3000, session)  # 3 seconds
+      if (is.null(values$api_test_results())) {
+        test_results <- test_all_apis(
+          anthropic_model = values$selected_anthropic_model,
+          perplexity_model = values$selected_perplexity_model
+        )
+        values$api_test_results(test_results)
+      }
+    }
+  })
+  
+  # Display API status
+  output$api_status_display <- renderUI({
+    test_results <- values$api_test_results()
+    
+    if (is.null(test_results)) {
+      return(tags$div(
+        tags$p(icon("clock"), " Testing connections...", 
+               style = "color: #666; margin: 0; font-size: 0.9em;")
+      ))
+    }
+    
+    status_items <- list()
+    
+    # Anthropic status
+    if (test_results$anthropic$success) {
+      status_items <- append(status_items, list(
+        tags$p(icon("check-circle", style = "color: #28a745;"), " Anthropic API",
+               style = "color: #28a745; margin: 0; font-size: 0.9em;")
+      ))
+    } else {
+      status_items <- append(status_items, list(
+        tags$p(icon("times-circle", style = "color: #dc3545;"), " Anthropic API",
+               style = "color: #dc3545; margin: 0; font-size: 0.9em;",
+               title = test_results$anthropic$details)
+      ))
+    }
+    
+    # Perplexity status
+    if (test_results$perplexity$success) {
+      status_items <- append(status_items, list(
+        tags$p(icon("check-circle", style = "color: #28a745;"), " Perplexity API",
+               style = "color: #28a745; margin: 0; font-size: 0.9em;")
+      ))
+    } else {
+      status_items <- append(status_items, list(
+        tags$p(icon("times-circle", style = "color: #dc3545;"), " Perplexity API",
+               style = "color: #dc3545; margin: 0; font-size: 0.9em;",
+               title = test_results$perplexity$details)
+      ))
+    }
+    
+    # Overall status
+    if (test_results$literature_enabled) {
+      status_items <- append(status_items, list(
+        tags$p(icon("microscope", style = "color: #28a745;"), " Literature Enhanced",
+               style = "color: #28a745; margin: 0; font-size: 0.9em; font-weight: bold;")
+      ))
+    } else {
+      status_items <- append(status_items, list(
+        tags$p(icon("exclamation-triangle", style = "color: #ffc107;"), " Basic Mode Only",
+               style = "color: #856404; margin: 0; font-size: 0.9em;")
+      ))
+    }
+    
+    return(tags$div(status_items))
   })
   
   # Evidence Base UI outputs for each phase

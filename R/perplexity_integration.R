@@ -5,7 +5,7 @@ library(httr)
 library(jsonlite)
 
 # Function to search literature using Perplexity API
-search_literature <- function(query, max_results = 5, model = "llama-3.1-sonar-small-128k-online") {
+search_literature <- function(query, max_results = 5, model = "sonar-pro") {
   
   # Get API key from environment
   api_key <- Sys.getenv("PERPLEXITY_API_KEY")
@@ -198,9 +198,9 @@ format_literature <- function(literature_results) {
 }
 
 # Safe wrapper for literature search with fallback
-safe_literature_search <- function(query) {
+safe_literature_search <- function(query, perplexity_model = "sonar-pro") {
   tryCatch({
-    result <- search_literature(query)
+    result <- search_literature(query, model = perplexity_model)
     
     if (!result$success && result$fallback) {
       # Return a structured fallback response
@@ -280,7 +280,7 @@ create_literature_cache <- function() {
 literature_cache <- create_literature_cache()
 
 # Cached literature search function
-cached_literature_search <- function(query) {
+cached_literature_search <- function(query, perplexity_model = "sonar-pro") {
   # Check cache first
   if (literature_cache$is_fresh(query)) {
     cached_result <- literature_cache$get(query)
@@ -289,7 +289,7 @@ cached_literature_search <- function(query) {
   }
   
   # Perform new search
-  result <- safe_literature_search(query)
+  result <- safe_literature_search(query, perplexity_model = perplexity_model)
   
   # Cache successful results
   if (result$success) {

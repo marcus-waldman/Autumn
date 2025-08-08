@@ -50,29 +50,12 @@
 ## Data Management
 
 ### Input Specifications
-- **Format**: RDS files only (.rds extension)
-- **Validation**: Verify valid RDS format containing data frame/tibble
-- **Persistence**: Data remains local only; no server-side storage
+Data input uses RDS format exclusively. For complete data format requirements, validation rules, and examples, see **[Data Format Specifications](data-format-specifications.md)**.
 
 ### Data Sharing Protocol
 - **Format**: JSON for statistics exchange
-- **Structure**:
-```json
-{
-  "descriptive_stats": {
-    "summary_statistics": {},
-    "plots": ["base64_encoded_images"],
-    "sample_characteristics": {}
-  },
-  "inferential_results": {
-    "test_name": "string",
-    "test_statistics": {},
-    "p_values": {},
-    "confidence_intervals": {},
-    "effect_sizes": {}
-  }
-}
-```
+- **Privacy**: Only aggregated statistics shared, never raw data
+- **Structure**: Descriptive and inferential results in standardized JSON format
 
 ## R Environment Integration
 

@@ -45,10 +45,11 @@ By integrating real-time literature synthesis with statistical analysis, Autumn 
 ## 🛠️ Technology Stack
 
 - **Frontend**: RShiny with reactive programming
-- **AI Integration**: `ellmer` package for Anthropic Claude API
+- **AI Integration**: Direct Anthropic Claude API integration
 - **Knowledge Base**: Perplexity API for academic literature search
 - **Data Format**: RDS files for secure local processing
 - **Output**: Interactive HTML reports via R Markdown
+- **Deployment**: Optimized for shinyapps.io hosting
 
 ## 📊 How It Accelerates Discovery
 
@@ -89,8 +90,9 @@ By integrating real-time literature synthesis with statistical analysis, Autumn 
 
 ```r
 # Install required packages
-install.packages(c("shiny", "shinydashboard", "ellmer", 
-                   "tidyverse", "DT", "knitr", "rmarkdown"))
+install.packages(c("shiny", "shinydashboard", "DT", 
+                   "tidyverse", "jsonlite", "knitr", 
+                   "rmarkdown", "httr"))
 
 # Clone repository
 git clone https://github.com/marcus-waldman/Autumn.git
@@ -100,7 +102,7 @@ ANTHROPIC_API_KEY=your_anthropic_key
 PERPLEXITY_API_KEY=your_perplexity_key
 
 # Run the application
-shiny::runApp("app.R")
+shiny::runApp("app.r")
 ```
 
 ## 🤝 The Autumn Philosophy
@@ -149,10 +151,13 @@ We are committed to rigorous evaluation of Autumn's impact on research efficienc
 ## 📚 Documentation
 
 Comprehensive documentation available in `/doc`:
-- [Project Overview](doc/project-overview.md)
-- [Technical Architecture](doc/technical-architecture.md)
-- [UI/UX Design Principles](doc/uiux-design-principles.md)
-- [Implementation Guidelines](doc/implementation-guidelines.md)
+- [Project Overview](doc/project-overview.md) - Executive summary and quick-start guide
+- [API Model Reference](doc/api-model-reference.md) - Complete API configuration guide
+- [Data Format Specifications](doc/data-format-specifications.md) - RDS file requirements
+- [Deployment Guide](doc/deployment-guide.md) - shinyapps.io deployment instructions
+- [Autumn Philosophy](doc/autumn-philosophy.md) - Core philosophical foundation
+
+See [Knowledge Statement](doc/knowledge-statement.md) for complete documentation index.
 
 ## 👥 Contributing
 

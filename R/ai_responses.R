@@ -5,14 +5,20 @@
 # Load enhanced chat functions
 source("R/enhanced_chat_functions.R")
 
-generate_ai_response <- function(phase, user_input, values) {
+generate_ai_response <- function(phase, user_input, values, anthropic_model = "claude-3-5-sonnet-20241022", perplexity_model = "sonar-pro") {
   
   # Get context-specific information
   context <- get_phase_context(phase, values)
   
   # Check if enhanced literature integration should be used
   if (literature_integration_enabled()) {
-    return(generate_enhanced_response(phase, user_input, values, use_literature = TRUE))
+    # Try enhanced response, with fallback if it fails
+    tryCatch({
+      return(generate_enhanced_response(phase, user_input, values, use_literature = TRUE, anthropic_model = anthropic_model, perplexity_model = perplexity_model))
+    }, error = function(e) {
+      # If enhanced fails, fall back to basic response
+      message("Enhanced response failed, using basic response: ", e$message)
+    })
   }
   
   # Generate response based on phase (fallback when literature not available)
