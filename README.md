@@ -12,7 +12,7 @@ Like Socrates in the agora, our AI companion asks not to show its wisdom but to 
 
 ## 🚀 Why Autumn?
 
-Traditional statistical software treats analysis as a mechanical process. Autumn reimagines research as a collaborative journey where AI serves as a knowledgeable companion, challenging assumptions with evidence from current literature and ensuring every analytical decision can withstand scientific scrutiny.
+Autumn reimagines research as a collaborative journey where AI serves as a knowledgeable companion, challenging assumptions with evidence from current literature and ensuring every analytical decision can withstand scientific scrutiny.
 
 By integrating real-time literature synthesis with statistical analysis, Autumn accelerates the path from hypothesis to discovery—helping researchers avoid dead ends, identify promising directions, and produce more robust conclusions.
 
@@ -123,13 +123,20 @@ Autumn itself is a testament to the collaborative philosophy it embodies. This p
 
 This meta-level demonstration shows that Autumn practices what it preaches: the best outcomes emerge from thoughtful collaboration between human insight and AI capability, where neither dominates but both contribute their unique strengths.
 
-## 📈 Impact Metrics
+### Development Acknowledgment
 
-While Autumn is newly launched, pilot testing has shown:
-- **3x faster** hypothesis refinement through AI dialogue
-- **60% reduction** in statistical errors through automated checks
-- **85% of users** report increased confidence in methods
-- **Zero data breaches** through local-only processing
+The conceptual development and documentation of Autumn was conducted using Claude (Anthropic) as a collaborative partner. The philosophical framework, technical specifications, and design principles emerged through iterative human-AI dialogue, with all final decisions and creative direction provided by the human researcher. This README itself was co-created through this process, demonstrating the very principles Autumn embodies.
+
+## 📈 Impact Potential
+
+As a newly developed platform, Autumn has not yet undergone formal evaluation studies. Future assessment will track metrics such as:
+
+- Time to hypothesis refinement through AI dialogue
+- Reduction in statistical errors through automated checks  
+- User confidence growth in research methods
+- Data security through local-only processing architecture
+
+We are committed to rigorous evaluation of Autumn's impact on research efficiency and quality. Results from pilot studies and user feedback will be transparently reported as they become available.
 
 ## 🚧 Roadmap
 
@@ -142,7 +149,6 @@ While Autumn is newly launched, pilot testing has shown:
 ## 📚 Documentation
 
 Comprehensive documentation available in `/doc`:
-- [Statement of Philosophy](doc/autumn-philosophy.md)
 - [Project Overview](doc/project-overview.md)
 - [Technical Architecture](doc/technical-architecture.md)
 - [UI/UX Design Principles](doc/uiux-design-principles.md)
@@ -162,6 +168,16 @@ Autumn represents a new paradigm in scientific software—where AI doesn't repla
 
 This project itself emerged through the very process it promotes: a human researcher with a vision engaged in deep dialogue with AI, together crafting something neither could have created alone. Every line of code, every design decision, every word of documentation reflects this synergistic collaboration.
 
+### AI Collaboration Acknowledgment
+
+The development of Autumn's conceptual framework, documentation, and philosophical foundations was conducted using Claude (Anthropic) as a collaborative partner. Specific contributions include:
+- Co-development of the UI/UX design principles emphasizing "Companionship in Discovery"
+- Assistance in articulating the connection to classical philosophical traditions
+- Generation of technical specifications and implementation guidelines
+- Collaborative refinement of the project's ethical frameworks
+
+All creative direction, final decisions, and the core vision remained with the human researcher. This acknowledgment demonstrates Autumn's commitment to transparency in human-AI collaboration.
+
 We honor the philosophical traditions that guide us—from Socrates' questioning method to Aristotle's empirical rigor to Plato's pursuit of ideal forms. In Autumn, these ancient wisdoms live again, helping modern researchers find truth in an age of information overload.
 
 ---
@@ -171,5 +187,3 @@ We honor the philosophical traditions that guide us—from Socrates' questioning
 *"The unexamined hypothesis is not worth testing." - Socrates (via Autumn)*
 
 *Autumn helps you examine deeply, test rigorously, and discover joyfully.*
-
-##
