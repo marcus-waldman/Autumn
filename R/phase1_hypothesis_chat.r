@@ -18,16 +18,14 @@ observeEvent(input$data_file, {
     values$data <- data
     showNotification("Data uploaded successfully!", type = "success")
     
-    # Add automated message to chat
+    # Add automated message to chat - gentle and conversational
     ai_msg <- list(
       sender = "ai", 
       content = paste0(
-        "Great! I've received your data file. Let me take a look...\n\n",
-        "I can see you have ", nrow(data), " observations and ", ncol(data), " variables. ",
-        "The variables in your dataset are: ", paste(names(data)[1:min(10, length(names(data)))], collapse = ", "),
-        ifelse(length(names(data)) > 10, ", and more", ""), ".\n\n",
-        "Now, let's work together to formulate a clear, testable hypothesis. ",
-        "What research question are you hoping to answer with this data?"
+        "Thank you for sharing your data! I can see you have ", nrow(data), " rows and ", ncol(data), " columns to explore together.\n\n",
+        "Some of the variables I notice are: ", paste(names(data)[1:min(5, length(names(data)))], collapse = ", "),
+        ifelse(length(names(data)) > 5, paste0(", and ", length(names(data)) - 5, " others"), ""), ".\n\n",
+        "What drew you to this dataset? Is there something particular you're curious about or hoping to discover?"
       )
     )
     values$chat_history$hypothesis <- append(values$chat_history$hypothesis, list(ai_msg))

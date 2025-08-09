@@ -4,7 +4,9 @@
       "Bash(mkdir:*)",
       "Bash(grep:*)",
       "Bash(Rscript:*)",
-      "WebFetch(domain:www.color-hex.com)"
+      "WebFetch(domain:www.color-hex.com)",
+      "WebFetch(domain:docs.perplexity.ai)",
+      "WebFetch(domain:consensus.app)"
     ],
     "deny": []
   }

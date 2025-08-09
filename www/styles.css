@@ -32,8 +32,9 @@ body {
   --bg-primary: var(--autumn-cream);
   --bg-secondary: rgba(192, 216, 227, 0.3);
   --bg-card: #ffffff;
-  --text-primary: #2d3748;
-  --text-secondary: rgba(45, 55, 72, 0.7);
+  --text-primary: #3d2f2e;
+  --text-secondary: rgba(61, 47, 46, 0.7);
+  --text-on-accent: #ffffff;
   --border-color: rgba(192, 216, 227, 0.4);
   --shadow-color: rgba(167, 141, 138, 0.15);
   --accent-primary: var(--autumn-coral);
@@ -51,13 +52,14 @@ body {
   --autumn-peach: #daa588;         /* darker peach */
   
   /* Dark theme semantic colors */
-  --bg-primary: #1a1a1a;
-  --bg-secondary: rgba(45, 55, 72, 0.5);
-  --bg-card: #2d3748;
-  --text-primary: #f7fafc;
-  --text-secondary: rgba(247, 250, 252, 0.8);
+  --bg-primary: #2a1f1e;
+  --bg-secondary: rgba(61, 47, 46, 0.3);
+  --bg-card: #3d2f2e;
+  --text-primary: #fdf6f2;
+  --text-secondary: rgba(253, 246, 242, 0.8);
+  --text-on-accent: #2a1f1e;
   --border-color: rgba(157, 129, 137, 0.3);
-  --shadow-color: rgba(0, 0, 0, 0.3);
+  --shadow-color: rgba(0, 0, 0, 0.4);
   --accent-primary: var(--autumn-coral);
   --accent-secondary: var(--autumn-rose);
   --success-color: var(--autumn-mist);
@@ -69,8 +71,41 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.8;
+  font-weight: normal;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Typography Hierarchy Reset - Only 2 font sizes */
+h1, h2, h3, h4, h5, h6 {
+  font-size: 20px !important;
+  font-weight: normal !important;
+  line-height: 1.8 !important;
+  margin-bottom: 24px !important;
+  margin-top: 32px !important;
+}
+
+p, div, span, td, th, li, label {
+  font-size: 16px !important;
+  font-weight: normal !important;
+  line-height: 1.8 !important;
+}
+
+/* Remove bold/italic except critical emphasis */
+b, strong, em, i {
+  font-weight: normal !important;
+  font-style: normal !important;
+}
+
+/* Keep emphasis only for truly critical content */
+.critical-emphasis {
+  font-weight: 500 !important;
+}
+
+/* Text width constraint for reading comfort */
+p, .chat-message, .alert, .well {
+  max-width: 65ch !important;
 }
 
 /* Priority 1.1: Expanded Chat Container */
@@ -78,24 +113,25 @@ body {
   height: calc(100vh - 250px);
   min-height: 500px;
   max-height: 800px;
+  max-width: 800px;
+  margin: 0 auto 80px auto;
   overflow-y: auto;
   border: none;
   padding: 24px;
-  background-color: var(--bg-card);
+  background-color: var(--bg-primary);
   border-radius: 16px;
-  box-shadow: 0 4px 12px var(--shadow-color);
-  margin-bottom: 80px; /* Space for floating input */
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.3s ease;
 }
 
 /* Priority 1.3: Floating Input Area */
 .chat-input-container {
   position: fixed;
   bottom: 20px;
-  left: 250px; /* account for sidebar */
+  left: 20px;
   right: 20px;
+  max-width: 800px;
+  margin: 0 auto;
   background: var(--bg-card);
-  box-shadow: 0 -4px 20px var(--shadow-color);
   padding: 20px;
   border-radius: 16px;
   border: 1px solid var(--border-color);
@@ -103,11 +139,12 @@ body {
   transition: all 0.3s ease;
 }
 
-/* Adjust for different screen sizes */
-@media (min-width: 768px) {
+/* Centered input positioning */
+@media (min-width: 860px) {
   .chat-input-container {
-    left: 260px; /* Slightly more space for larger screens */
-    right: 30px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
   }
 }
 
@@ -115,7 +152,6 @@ body {
 #phase-status {
   background-color: var(--bg-secondary);
   border-radius: 12px;
-  box-shadow: 0 2px 6px var(--shadow-color);
   transition: all 0.3s ease;
 }
 
@@ -132,133 +168,137 @@ body {
   color: var(--text-secondary) !important;
 }
 
-/* Box styling */
+/* Box styling - transparent backgrounds */
 .box {
   border: none;
   border-radius: 16px;
-  box-shadow: 0 4px 12px var(--shadow-color);
-  background-color: var(--bg-card);
+  background-color: transparent;
   transition: all 0.3s ease;
+  max-width: 800px;
+  margin: 48px auto;
+  padding: 48px 24px;
 }
 
 .box-header {
-  font-weight: 600;
-  background-color: var(--bg-secondary);
-  border-radius: 16px 16px 0 0;
-  border-bottom: 1px solid var(--border-color);
+  font-weight: normal;
+  background-color: transparent;
+  border-radius: 0;
+  border-bottom: none;
   color: var(--text-primary);
   transition: all 0.3s ease;
+  margin-bottom: 32px;
+  font-size: 20px;
 }
 
-/* Alert styling */
+/* Alert styling - transparent backgrounds, generous margins */
 .alert {
-  border-radius: 12px;
-  padding: 18px 20px;
-  margin-bottom: 24px;
+  border-radius: 0;
+  padding: 32px 0;
+  margin-bottom: 48px;
   border: none;
-  box-shadow: 0 2px 8px var(--shadow-color);
+  background-color: transparent !important;
   transition: all 0.3s ease;
+  max-width: 65ch;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .alert-info {
-  background-color: rgba(192, 216, 227, 0.2);
+  background-color: transparent !important;
   color: var(--text-primary);
-  border-left: 4px solid var(--autumn-mist);
+  border-left: 2px solid var(--autumn-mist);
+  padding-left: 20px;
 }
 
 .alert-success {
-  background-color: rgba(192, 216, 227, 0.15);
+  background-color: transparent !important;
   color: var(--text-primary);
-  border-left: 4px solid var(--success-color);
+  border-left: 2px solid var(--success-color);
+  padding-left: 20px;
 }
 
 .alert-warning {
-  background-color: rgba(238, 185, 162, 0.15);
+  background-color: transparent !important;
   color: var(--text-primary);
-  border-left: 4px solid var(--warning-color);
+  border-left: 2px solid var(--warning-color);
+  padding-left: 20px;
 }
 
 .alert-danger {
-  background-color: rgba(225, 138, 122, 0.15);
+  background-color: transparent !important;
   color: var(--text-primary);
-  border-left: 4px solid var(--accent-primary);
+  border-left: 2px solid var(--accent-primary);
+  padding-left: 20px;
 }
 
 /* Button styling with Autumn Pastels */
 .btn-success {
   background-color: var(--success-color);
   border: none;
-  color: var(--text-primary);
+  color: var(--text-on-accent);
   border-radius: 10px;
   padding: 12px 24px;
   font-weight: 500;
-  box-shadow: 0 2px 6px var(--shadow-color);
   transition: all 0.3s ease;
 }
 
 .btn-success:hover {
   background-color: var(--autumn-mist);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--shadow-color);
-  color: var(--text-primary);
+  color: var(--text-on-accent);
 }
 
 .btn-warning {
   background-color: var(--warning-color);
   border: none;
-  color: var(--text-primary);
+  color: var(--text-on-accent);
   border-radius: 10px;
   padding: 12px 24px;
   font-weight: 500;
-  box-shadow: 0 2px 6px var(--shadow-color);
   transition: all 0.3s ease;
 }
 
 .btn-warning:hover {
   background-color: var(--autumn-peach);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--shadow-color);
-  color: var(--text-primary);
+  color: var(--text-on-accent);
 }
 
-.btn-info {
+.btn-info, .btn-primary {
   background-color: var(--accent-primary);
   border: none;
-  color: white;
+  color: var(--text-on-accent);
   border-radius: 10px;
   padding: 12px 24px;
   font-weight: 500;
-  box-shadow: 0 2px 6px var(--shadow-color);
   transition: all 0.3s ease;
 }
 
-.btn-info:hover {
+.btn-info:hover, .btn-primary:hover {
   background-color: var(--autumn-coral);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--shadow-color);
-  color: white;
+  color: var(--text-on-accent);
 }
 
-/* Well panel styling */
+/* Well panel styling - transparent, generous spacing */
 .well {
-  background-color: var(--bg-secondary);
+  background-color: transparent;
   border: none;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 24px;
-  box-shadow: 0 2px 6px var(--shadow-color);
+  border-radius: 0;
+  padding: 32px 0;
+  margin-bottom: 48px;
   transition: all 0.3s ease;
+  max-width: 65ch;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Table styling */
 .stats-table {
   width: 100%;
   border-collapse: collapse;
-  margin: 24px 0;
+  margin: 24px auto;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px var(--shadow-color);
   transition: all 0.3s ease;
+  max-width: 800px;
 }
 
 .stats-table th,
@@ -284,27 +324,33 @@ body {
   background-color: rgba(192, 216, 227, 0.2);
 }
 
-/* Code blocks */
+/* Code blocks - minimal styling */
 pre {
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 16px;
+  background-color: transparent;
+  border: none;
+  border-left: 2px solid var(--accent-primary);
+  border-radius: 0;
+  padding: 32px 0 32px 20px;
   overflow-x: auto;
-  box-shadow: inset 0 1px 3px var(--shadow-color);
   color: var(--text-primary);
   transition: all 0.3s ease;
+  max-width: 65ch;
+  margin: 48px auto;
+  font-family: 'Courier New', monospace;
+  line-height: 1.8;
 }
 
-/* Progress bar */
+/* Progress bar - minimal styling */
 .progress {
-  height: 24px;
-  margin-bottom: 24px;
+  height: 4px;
+  margin-bottom: 48px;
   overflow: hidden;
   background-color: var(--bg-secondary);
-  border-radius: 12px;
-  box-shadow: inset 0 2px 4px var(--shadow-color);
+  border-radius: 0;
   transition: all 0.3s ease;
+  max-width: 65ch;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .progress-bar {
@@ -322,12 +368,11 @@ pre {
 
 /* Report styling */
 .report-container {
-  max-width: 900px;
+  max-width: 800px;
   margin: 0 auto;
   padding: 24px;
   background-color: var(--bg-card);
   border-radius: 16px;
-  box-shadow: 0 4px 12px var(--shadow-color);
   transition: all 0.3s ease;
 }
 
@@ -335,10 +380,10 @@ pre {
   background-color: rgba(192, 216, 227, 0.15);
   border-left: 4px solid var(--success-color);
   padding: 24px;
-  margin: 24px 0;
+  margin: 24px auto;
   border-radius: 12px;
-  box-shadow: 0 2px 6px var(--shadow-color);
   transition: all 0.3s ease;
+  max-width: 800px;
 }
 
 /* Validation messages */
@@ -405,17 +450,20 @@ pre {
 
 /* Chat message styling for breathing room */
 .chat-message {
-  padding: 20px 24px;
-  margin-bottom: 24px;
-  line-height: 1.7;
-  border-radius: 12px;
-  background-color: var(--bg-card);
-  box-shadow: 0 2px 6px var(--shadow-color);
+  padding: 24px 0;
+  margin-bottom: 32px;
+  line-height: 1.8;
+  border-radius: 0;
+  background-color: transparent;
   transition: all 0.3s ease;
+  max-width: 65ch;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .chat-message p {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
+  font-size: 16px;
 }
 
 .chat-message p:last-child {
@@ -424,16 +472,17 @@ pre {
 
 /* User messages with subtle distinction */
 .chat-message.user {
-  background-color: var(--bg-secondary);
-  margin-left: 10%;
-  border-left: 3px solid var(--accent-secondary);
+  background-color: transparent;
+  padding-left: 20px;
+  border-left: 2px solid var(--accent-secondary);
+  font-style: italic;
 }
 
 /* AI messages with warmth */
 .chat-message.ai {
-  background-color: var(--bg-card);
-  margin-right: 10%;
-  border-left: 3px solid var(--accent-primary);
+  background-color: transparent;
+  padding-left: 20px;
+  border-left: 2px solid var(--accent-primary);
 }
 
 /* Literature citations styling */
@@ -464,6 +513,68 @@ pre {
 .thinking-indicator::before {
   content: "💭";
   margin-right: 8px;
+}
+
+/* Hide sidebar by default for clean start */
+.main-sidebar {
+  display: none !important;
+}
+
+.content-wrapper, .main-footer {
+  margin-left: 0 !important;
+}
+
+/* Show sidebar when .sidebar-open class is added */
+body.sidebar-open .main-sidebar {
+  display: block !important;
+}
+
+body.sidebar-open .content-wrapper,
+body.sidebar-open .main-footer {
+  margin-left: 230px !important;
+}
+
+/* Hide complex sidebar controls initially */
+#phase-status,
+.sidebar-menu,
+.main-sidebar hr {
+  display: none !important;
+}
+
+/* Show only essential elements when sidebar is open */
+body.sidebar-open #phase-status,
+body.sidebar-open .sidebar-menu,
+body.sidebar-open .main-sidebar hr {
+  display: block !important;
+}
+
+/* Minimal sidebar appearance when shown */
+body.sidebar-open .sidebar-menu .fa {
+  display: none;
+}
+
+/* Simplified content layout */
+.content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Sidebar Toggle Button */
+.sidebar-toggle-btn {
+  background-color: transparent !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  padding: 8px 16px !important;
+  cursor: pointer !important;
+  color: var(--text-primary) !important;
+  font-size: 14px !important;
+  margin-right: 10px !important;
+  transition: all 0.3s ease !important;
+}
+
+.sidebar-toggle-btn:hover {
+  background-color: var(--bg-secondary) !important;
 }
 
 /* Theme Toggle Button */
